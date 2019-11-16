@@ -1,0 +1,2 @@
+C:/Users/Misha/AndroidStudioProjects/Prototype1/app/.cxx/cmake/debug/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/Misha/AndroidStudioProjects/Prototype1/app/.cxx/cmake/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,16 @@
+
+{
+	"buildFiles" : [ "C:/Users/Misha/AndroidStudioProjects/Prototype1/CMakeLists.txt" ],
+	"cleanCommands" : 
+	[
+		"C:\\Users\\Misha\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build C:\\Users\\Misha\\AndroidStudioProjects\\Prototype1\\app\\.cxx\\cmake\\debug\\x86_64 --target clean"
+	],
+	"toolchains" : 
+	{
+		"1905946069" : 
+		{
+			"cCompilerExecutable" : "C:/Users/Misha/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
+			"cppCompilerExecutable" : "C:/Users/Misha/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
+		}
+	}
+}
