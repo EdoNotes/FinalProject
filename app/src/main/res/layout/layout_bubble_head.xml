@@ -5,17 +5,4 @@
     android:id="@+id/bubble_head_layout"
     android:layout_width="100dp"
     android:layout_height="60dp"
-    android:background="@android:color/transparent">
-
-    <ImageView
-        android:id="@+id/ImageForBlur"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="false"
-        android:src="@drawable/bubble_head"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-    />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:background="@android:color/background_dark" />

@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
                 if(isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     Vector<BlurData> dataVector=new Vector<BlurData>();
-                    dataVector.add(new BlurData(200,500,200,200));
+                    dataVector.add(new BlurData(200,500,300,100));
                     dataVector.add(new BlurData(400,0,500,200));
                     mServer.blur(dataVector);
                 }
