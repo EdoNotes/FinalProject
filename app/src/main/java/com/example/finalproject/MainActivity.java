@@ -63,7 +63,7 @@ public class MainActivity extends Activity {
                 if(isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     Vector<BlurData> dataVector=new Vector<BlurData>();
-                    dataVector.add(new BlurData(200,500,300,100));
+                    dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
                     dataVector.add(new BlurData(400,0,500,200));
                     mServer.blur(dataVector);
                 }
@@ -108,12 +108,31 @@ public class MainActivity extends Activity {
 
                                     if (null != buff) {
                                         ArrayList<int[]> results;
-                                        if (null != classifierObj) {
-                                            classifierObj.PredictFrame(buff, definedThreshold);
+                                        if (null != classifierObj && classifierObj.PredictFrame(buff, definedThreshold) != -2) {
                                             results = classifierObj.GetCoordinates();
 
-                                            results = null;
                                             // Add draw functions
+                                            if(isLayoutOverlayPermissionGranted(MainActivity.this))
+                                            {
+                                                int i , x , y;
+                                                Vector<BlurData> dataVector=new Vector<BlurData>();
+
+                                                /*for(i=0; i<results.size(); i++) {
+                                                    x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
+                                                    y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
+                                                    if(results.get(i)[2] > 0 && results.get(i)[3]>0) {
+                                                        dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
+                                                    }
+                                                }*/
+                                                //dataVector.add(new BlurData(200,500,300,100));
+
+                                                //mServer.blur(dataVector);
+                                                //Thread.sleep(500);
+                                            }
+                                            else
+                                            {
+                                                grantLayoutOverlayPermission(MainActivity.this);
+                                            }
                                         } else
                                             classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
                                     }

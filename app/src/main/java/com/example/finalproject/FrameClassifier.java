@@ -12,7 +12,6 @@ import android.util.Log;
 import android.util.Size;
 import org.tensorflow.lite.Interpreter;
 
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -96,28 +95,35 @@ public class FrameClassifier {
 
         g_metrics = new DisplayMetrics();
         act.getWindowManager().getDefaultDisplay().getMetrics(g_metrics);
-        if(g_metrics.widthPixels == g_metrics.heightPixels) {
+        float ratio = (float)definedRatio;
+        float width = (float)g_metrics.widthPixels;
+        float height = (float)g_metrics.heightPixels;
+        if(width == height) {
             offsetX = 0;
             offsetY = 0;
-            scaleX = scaleY = g_metrics.widthPixels/definedRatio;
+            scaleX = scaleY = width/ratio;
         }
-        else if(g_metrics.widthPixels > g_metrics.heightPixels) {
+        else if(width > height) {
             offsetX = 0;
-            scaleX = scaleY = g_metrics.widthPixels / definedRatio;
-            offsetY = ((scaleX * g_metrics.heightPixels) - definedRatio) / 2;
+            scaleX = width / ratio;
+            scaleY = height / width;
+            offsetY = ((1 - scaleY)/2)*ratio;
         }
         else {
             offsetY = 0;
-            scaleX = scaleY = g_metrics.heightPixels / definedRatio;
-            offsetX = ((scaleX * g_metrics.widthPixels) - definedRatio) / 2;
+            scaleY = height / ratio;
+            scaleX = width / height;
+            offsetX = ((1 - scaleX)/2)*ratio;
         }
 
         // Initialise the model
         try{
+            //AssetManager assetManager = act.getAssets();
+            //String[] files = assetManager.list("");
             //MappedByteBuffer tfliteModel = FileUtil.loadMappedFile(act, "mobilenet_v1_1.0_224_quant.tflite");
             tfLite = new Interpreter(loadModelFile(act.getAssets(), TF_OD_API_MODEL_FILE));
-        } catch (IOException e){
-            Log.i("tfliteSupport", "Error reading model", e);
+        } catch (Exception e){
+            Log.i("FrameClassifier", "Error reading model", e);
         }
     }
 
@@ -162,10 +168,10 @@ public class FrameClassifier {
                 if(outputScores[0][i] >= Threshold) {
                     final RectF detection =
                             new RectF(
-                                    outputLocations[0][i][1]*scaleX + offsetX,
-                                    outputLocations[0][i][0] * scaleX + offsetY,
-                                    outputLocations[0][i][3] * scaleX + offsetX,
-                                    outputLocations[0][i][2] * scaleX + offsetY);
+                                    (Math.round(outputLocations[0][i][1] * 100)-offsetX)*scaleX,
+                                    (Math.round(outputLocations[0][i][0] * 100)-offsetY)*scaleY,
+                                    (Math.round(outputLocations[0][i][3] * 100)-offsetX)*scaleX,
+                                    (Math.round(outputLocations[0][i][2] * 100)-offsetY)*scaleY);
                     // SSD Mobilenet V1 Model assumes class 0 is background class
                     // in label file and class labels start from 1 to number_of_classes+1,
                     // while outputClasses correspond to class index from 0 to number_of_classes
