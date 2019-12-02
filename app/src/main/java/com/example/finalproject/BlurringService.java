@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -71,7 +72,7 @@ public class BlurringService extends Service
     public void blur(Vector<BlurData> dataVec)
     {
         int i=0;
-        if(dataVec.size()==0)
+        if(null == dataVec || dataVec.size()==0)
         {
             clean();
             return;
@@ -88,6 +89,7 @@ public class BlurringService extends Service
             BlurData curr=dataVec.get(i);
             params.x=curr.getX();
             params.y=curr.getY();
+            params.gravity = Gravity.TOP|Gravity.LEFT;
             params.height=curr.getHeight();
             params.width=curr.getWidth();
             view.setLayoutParams(params);
@@ -95,7 +97,7 @@ public class BlurringService extends Service
             alreadyblurredViews.add(view);
             i++;
         }
-        blurringViews.clear();//make the vector empty for next blurring
+        //blurringViews.clear();//make the vector empty for next blurring
     }//blur
     public void clean()
     {

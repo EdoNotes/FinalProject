@@ -112,7 +112,7 @@ public class CaptureScreen {
                         (Context.MEDIA_PROJECTION_SERVICE);
                 mProjection = projectionManager.getMediaProjection(resultCode, data);
 
-                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 5);
+                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 3);
 
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,

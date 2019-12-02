@@ -105,15 +105,13 @@ public class FrameClassifier {
         }
         else if(width > height) {
             offsetX = 0;
-            scaleX = width / ratio;
-            scaleY = height / width;
-            offsetY = ((1 - scaleY)/2)*ratio;
+            scaleY = scaleX = width / ratio;
+            offsetY = (width - height)/(2*scaleY);
         }
         else {
             offsetY = 0;
-            scaleY = height / ratio;
-            scaleX = width / height;
-            offsetX = ((1 - scaleX)/2)*ratio;
+            scaleY = scaleX = height / ratio;
+            offsetX = (height - width)/(2*scaleX);
         }
 
         // Initialise the model
@@ -165,13 +163,13 @@ public class FrameClassifier {
             // after scaling them back to the input size.
             ArrayList<Recognition> recognitions = new ArrayList<>(NUM_DETECTIONS);
             for (int i = 0; i < NUM_DETECTIONS; ++i) {
-                if(outputScores[0][i] >= Threshold) {
+                if(outputScores[0][i] >= Threshold && outputClasses[0][i] == 0.0f /*Only person class*/) {
                     final RectF detection =
                             new RectF(
-                                    (Math.round(outputLocations[0][i][1] * 100)-offsetX)*scaleX,
-                                    (Math.round(outputLocations[0][i][0] * 100)-offsetY)*scaleY,
-                                    (Math.round(outputLocations[0][i][3] * 100)-offsetX)*scaleX,
-                                    (Math.round(outputLocations[0][i][2] * 100)-offsetY)*scaleY);
+                                    ((outputLocations[0][i][1] * TF_OD_API_INPUT_SIZE)-offsetX) * scaleX,
+                                    /*((*/outputLocations[0][i][0] * TF_OD_API_INPUT_SIZE/*)-offsetY)*/ * scaleY,
+                                    ((outputLocations[0][i][3] * TF_OD_API_INPUT_SIZE)-offsetX) * scaleX,
+                                    /*((*/outputLocations[0][i][2] * TF_OD_API_INPUT_SIZE/*)-(2*offsetY))*/ * scaleY);
                     // SSD Mobilenet V1 Model assumes class 0 is background class
                     // in label file and class labels start from 1 to number_of_classes+1,
                     // while outputClasses correspond to class index from 0 to number_of_classes
@@ -201,12 +199,14 @@ public class FrameClassifier {
         {
             if(null == al)
                 al = new ArrayList<int[]>();
-            int loc[] = {Math.round(g_recognitions.get(i).location.top) , Math.round(g_recognitions.get(i).location.left)
-                    , Math.round(g_recognitions.get(i).location.right) , Math.round(g_recognitions.get(i).location.bottom)};
+            int loc[] = {g_recognitions.get(i).location.top < 0 ? 0 : (g_recognitions.get(i).location.top > (float)g_metrics.heightPixels ? Math.round(g_metrics.heightPixels) : Math.round(g_recognitions.get(i).location.top)),
+                    g_recognitions.get(i).location.left < 0 ? 0 : (g_recognitions.get(i).location.left > (float)g_metrics.widthPixels ? Math.round(g_metrics.widthPixels) : Math.round(g_recognitions.get(i).location.left)),
+                    g_recognitions.get(i).location.right < 0 ? 0 : (g_recognitions.get(i).location.right > (float)g_metrics.widthPixels ? Math.round(g_metrics.widthPixels) : Math.round(g_recognitions.get(i).location.right)),
+                    g_recognitions.get(i).location.bottom < 0 ? 0 : (g_recognitions.get(i).location.bottom > (float)g_metrics.heightPixels ? Math.round(g_metrics.heightPixels) : Math.round(g_recognitions.get(i).location.bottom))};
             al.add(i,loc);
         }
 
-        g_recognitions = null;
+        //g_recognitions = null;
 
         return al;
     }

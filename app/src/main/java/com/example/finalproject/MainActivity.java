@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 //import android.support.design.widget.Snackbar;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -37,10 +38,12 @@ public class MainActivity extends Activity {
     private FrameClassifier classifierObj = null;
     private Runnable runnableObj = null;
 
+    Vector<BlurData> dataVector = null;
+
     public static final int defineDelayMilli = 200;
     public static final int definedRatio = 300;
     public static final int definedDensity = 420;
-    public static final float definedThreshold = (float)0.55;
+    public static final float definedThreshold = 0.5f;
 
     private final Lock lock = new ReentrantLock(true);
     @Override
@@ -63,8 +66,8 @@ public class MainActivity extends Activity {
                 if(isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     Vector<BlurData> dataVector=new Vector<BlurData>();
-                    dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
-                    dataVector.add(new BlurData(400,0,500,200));
+                    //dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
+                    dataVector.add(new BlurData(100,0,500,500));
                     mServer.blur(dataVector);
                 }
                 else
@@ -115,18 +118,31 @@ public class MainActivity extends Activity {
                                             if(isLayoutOverlayPermissionGranted(MainActivity.this))
                                             {
                                                 int i , x , y;
-                                                Vector<BlurData> dataVector=new Vector<BlurData>();
+                                                dataVector=new Vector<BlurData>();
 
-                                                /*for(i=0; i<results.size(); i++) {
+                                                for(i=0; null != results && i<results.size(); i++) {
                                                     x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
                                                     y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
                                                     if(results.get(i)[2] > 0 && results.get(i)[3]>0) {
                                                         dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
                                                     }
-                                                }*/
+                                                }
+
+                                                if(null == results)
+                                                    dataVector = null;
                                                 //dataVector.add(new BlurData(200,500,300,100));
 
-                                                //mServer.blur(dataVector);
+                                                /*MainActivity.this.runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        try {
+                                                            mServer.blur(dataVector);
+                                                        } catch (Exception e) {
+                                                            Log.i(TAG, e.toString());
+                                                        }
+                                                    }
+                                                });*/
+                                                runUiThread();
                                                 //Thread.sleep(500);
                                             }
                                             else
@@ -188,6 +204,19 @@ public class MainActivity extends Activity {
             }
         });
 
+    }
+
+    private void runUiThread(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mServer.blur(dataVector);
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                }
+            }
+        });
     }
 
     @Override
