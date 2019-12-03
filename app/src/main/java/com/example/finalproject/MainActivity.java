@@ -115,22 +115,21 @@ public class MainActivity extends Activity {
                                             results = classifierObj.GetCoordinates();
 
                                             // Add draw functions
-                                            if(isLayoutOverlayPermissionGranted(MainActivity.this))
-                                            {
-                                                int i , x , y;
-                                                dataVector=new Vector<BlurData>();
 
-                                                for(i=0; null != results && i<results.size(); i++) {
-                                                    x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
-                                                    y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
-                                                    if(results.get(i)[2] > 0 && results.get(i)[3]>0) {
-                                                        dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
-                                                    }
+                                            int i, x, y;
+                                            dataVector = new Vector<BlurData>();
+
+                                            for (i = 0; null != results && i < results.size(); i++) {
+                                                x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
+                                                y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
+                                                if (results.get(i)[2] > 0 && results.get(i)[3] > 0) {
+                                                    dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
                                                 }
+                                            }
 
-                                                if(null == results)
-                                                    dataVector = null;
-                                                //dataVector.add(new BlurData(200,500,300,100));
+                                            if (null == results)
+                                                dataVector = null;
+                                            //dataVector.add(new BlurData(200,500,300,100));
 
                                                 /*MainActivity.this.runOnUiThread(new Runnable() {
                                                     @Override
@@ -142,13 +141,9 @@ public class MainActivity extends Activity {
                                                         }
                                                     }
                                                 });*/
-                                                runUiThread();
-                                                //Thread.sleep(500);
-                                            }
-                                            else
-                                            {
-                                                grantLayoutOverlayPermission(MainActivity.this);
-                                            }
+                                            runUiThread();
+                                            //Thread.sleep(500);
+
                                         } else
                                             classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
                                     }

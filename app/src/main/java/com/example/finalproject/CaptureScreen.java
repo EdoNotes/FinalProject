@@ -10,10 +10,13 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Environment;
 import android.util.Log;
 
 import com.example.finalproject.MainActivity;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 
 
@@ -164,10 +167,10 @@ public class CaptureScreen {
                                             conv_buffer.put(offset2+1 , buffer.get(offset+1));   // G
                                             conv_buffer.put(offset2+2 , buffer.get(offset+2));   // B
 
-                                            /*pixel |= (conv_buffer.get(offset2) & 0xff) << 16;     // R
-                                            pixel |= (conv_buffer.get(offset2 + 1) & 0xff) << 8;  // G
-                                            pixel |= (conv_buffer.get(offset2 + 2) & 0xff);       // B
-                                            pixel |= 0; // A
+                                            /*pixel |= (buffer.get(offset) & 0xff) << 16;     // R
+                                            pixel |= (buffer.get(offset + 1) & 0xff) << 8;  // G
+                                            pixel |= (buffer.get(offset + 2) & 0xff);       // B
+                                            pixel |= (buffer.get(offset + 3) & 0xff) << 24; // A
                                             bitmap.setPixel(j, i, pixel);*/
 
                                             offset += pixelStride;
@@ -179,10 +182,10 @@ public class CaptureScreen {
                                     g_bytebuffer = conv_buffer;
                                     frameCounter++;
 
-                                    // Only for debugging
+                                    // Debugging
                                     /*FileOutputStream fos = null;
                                     try {
-                                        File file = new File(mainActiv.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "/myscreen0.jpeg");
+                                        File file = new File(mainActiv.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "/myscreen"+frameCounter+".jpeg");
                                         fos = new FileOutputStream(file);
                                         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
                                     }catch(Exception e) {
@@ -193,12 +196,13 @@ public class CaptureScreen {
                                         if (null != fos) {
                                             try {
                                                 fos.close();
-                                            } catch (IOException e) {
+                                            } catch (Exception e) {
                                                 e.printStackTrace();
                                             }
                                         }
                                     }*/
                                     //img.close();
+                                    // End Debugging
 
                                 }
 
