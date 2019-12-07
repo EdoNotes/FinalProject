@@ -36,7 +36,7 @@ public class CaptureScreen {
     private int g_density = 0;
 
     private MediaProjection mProjection;
-    private ImageReader mImageReader = null;
+    private static volatile ImageReader mImageReader = null;
 
     private ByteBuffer g_bytebuffer = null;
 
@@ -96,8 +96,89 @@ public class CaptureScreen {
 
     public ByteBuffer GetLatestFrame(MainActivity.IntObj counter) {
 
+        Image img = null;
+        try {
+            img = mImageReader.acquireLatestImage();
+
+            if (img != null) {
+                Image.Plane[] planes = img.getPlanes();
+                if (planes[0].getBuffer() == null) {
+                    if (null != img)
+                        img.close();
+                    return null;
+                }
+
+                int pixelStride = planes[0].getPixelStride();
+                int rowStride = planes[0].getRowStride();
+                int rowPadding = rowStride - pixelStride * g_width;
+                //byte[] newData = new byte[g_width * g_height * 3];
+
+                int offset = 0, i, j, offset2 = 0;
+                //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888); // Debug
+                ByteBuffer buffer = planes[0].getBuffer();
+                ByteBuffer conv_buffer = ByteBuffer.allocateDirect(g_height * g_width * 3);
+                for (i = 0; i < g_height; ++i) {
+                    for (j = 0; j < g_width; ++j) {
+                        conv_buffer.put(offset2, buffer.get(offset));             // R
+                        conv_buffer.put(offset2 + 1, buffer.get(offset + 1));   // G
+                        conv_buffer.put(offset2 + 2, buffer.get(offset + 2));   // B
+
+                        // Debug - start
+                        /*int pixel = 0;
+                        pixel |= (buffer.get(offset) & 0xff) << 16;     // R
+                        pixel |= (buffer.get(offset + 1) & 0xff) << 8;  // G
+                        pixel |= (buffer.get(offset + 2) & 0xff);       // B
+                        pixel |= (buffer.get(offset + 3) & 0xff) << 24; // A
+                        bitmap.setPixel(j, i, pixel);*/
+                        // Debug - end
+
+                        offset += pixelStride;
+                        offset2 += pixelStride - 1;
+                    }
+                    offset += rowPadding;
+                }
+
+                g_bytebuffer = conv_buffer;
+                frameCounter++;
+
+                // Debug - start
+                /*FileOutputStream fos = null;
+                try {
+                    File file = new File(mainActiv.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "/myscreen"+frameCounter+".jpeg");
+                    fos = new FileOutputStream(file);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+                }catch(Exception e) {
+                    e.printStackTrace();
+                    Log.i(TAG, e.toString());
+                }
+                finally {
+                    if (null != fos) {
+                        try {
+                            fos.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }*/
+                // Debug - end
+
+            }
+            else
+                return null;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            //Log.i(TAG, e.toString());
+        } finally {
+            if (null != img) {
+                img.close();
+            }
+        }
+
+
         ByteBuffer buffer = g_bytebuffer;
-        counter.value = frameCounter;
+        if(null != counter)
+            counter.value = frameCounter;
         g_bytebuffer = null;
 
         return buffer;
@@ -120,113 +201,6 @@ public class CaptureScreen {
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                         mImageReader.getSurface(), null, null);
-
-
-                mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(ImageReader reader) {
-
-                        Image img = null;
-                        img = reader.acquireLatestImage();
-
-                        if(busy) {
-                            if (null != img)
-                                img.close();
-                            return;
-                        }
-
-                        busy = true;
-                        if (startTimeMilli == -1 || (System.currentTimeMillis() - startTimeMilli) > defineDelayMilli) {
-                            Log.i(TAG, "Getting image in the listener");
-                            Bitmap bitmap = null;
-
-                            startTimeMilli = System.currentTimeMillis();
-
-                            try {
-                                if (img != null) {
-                                    Image.Plane[] planes = img.getPlanes();
-                                    if (planes[0].getBuffer() == null) {
-                                        if (null != img)
-                                            img.close();
-                                        return;
-                                    }
-
-                                    int pixelStride = planes[0].getPixelStride();
-                                    int rowStride = planes[0].getRowStride();
-                                    int rowPadding = rowStride - pixelStride * g_width;
-                                    //byte[] newData = new byte[g_width * g_height * 3];
-
-                                    int offset = 0 , i , j , offset2 = 0;
-                                    //bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888);
-                                    ByteBuffer buffer = planes[0].getBuffer();
-                                    ByteBuffer conv_buffer = ByteBuffer.allocateDirect(g_height * g_width * 3);
-                                    for (i = 0; i < g_height; ++i) {
-                                        for (j = 0; j < g_width; ++j) {
-                                            //int pixel = 0;
-                                            conv_buffer.put(offset2 , buffer.get(offset));             // R
-                                            conv_buffer.put(offset2+1 , buffer.get(offset+1));   // G
-                                            conv_buffer.put(offset2+2 , buffer.get(offset+2));   // B
-
-                                            /*pixel |= (buffer.get(offset) & 0xff) << 16;     // R
-                                            pixel |= (buffer.get(offset + 1) & 0xff) << 8;  // G
-                                            pixel |= (buffer.get(offset + 2) & 0xff);       // B
-                                            pixel |= (buffer.get(offset + 3) & 0xff) << 24; // A
-                                            bitmap.setPixel(j, i, pixel);*/
-
-                                            offset += pixelStride;
-                                            offset2 += pixelStride-1;
-                                        }
-                                        offset += rowPadding;
-                                    }
-
-                                    g_bytebuffer = conv_buffer;
-                                    frameCounter++;
-
-                                    // Debugging
-                                    /*FileOutputStream fos = null;
-                                    try {
-                                        File file = new File(mainActiv.getExternalFilesDir(Environment.DIRECTORY_PICTURES), "/myscreen"+frameCounter+".jpeg");
-                                        fos = new FileOutputStream(file);
-                                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-                                    }catch(Exception e) {
-                                        e.printStackTrace();
-                                        Log.i(TAG, e.toString());
-                                    }
-                                    finally {
-                                        if (null != fos) {
-                                            try {
-                                                fos.close();
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        }
-                                    }*/
-                                    //img.close();
-                                    // End Debugging
-
-                                }
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                Log.i(TAG, e.toString());
-                            } finally {
-                                /*if (null != bitmap) {
-                                    bitmap.recycle();
-                                }*/
-                                if (null != img) {
-                                    img.close();
-                                }
-                            }
-                        }
-                        else
-                            Log.i(TAG, "Elapsed time less than 200milli");
-
-                        if (null != img)
-                            img.close();
-
-                        busy = false;
-                    }
-                }, null);
             }
         }
     }

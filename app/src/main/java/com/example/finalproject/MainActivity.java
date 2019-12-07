@@ -1,14 +1,15 @@
 package com.example.finalproject;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 //import android.support.design.widget.Snackbar;
 import android.os.IBinder;
-import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Vector;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -45,7 +47,16 @@ public class MainActivity extends Activity {
     public static final int definedDensity = 420;
     public static final float definedThreshold = 0.5f;
 
-    private final Lock lock = new ReentrantLock(true);
+    private final Lock StartLock = new ReentrantLock(true);
+    private static Semaphore DrawSem = new Semaphore(1);
+    private static Semaphore DrawUIToThread = new Semaphore(1);
+    private static Semaphore DrawThreadToUI = new Semaphore(0);
+
+    private static volatile boolean DrawOrRestore = true;
+
+    private static ByteBuffer FrameBuffer;
+    private static IntObj frameCounter;
+
     @Override
     protected void onStart()
     {
@@ -53,10 +64,13 @@ public class MainActivity extends Activity {
         Intent intent = new Intent(this, BlurringService.class);
         startService(intent);
         bindService(intent,mConnection,BIND_AUTO_CREATE);
+
+        frameCounter = new IntObj();
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         blurButton=(Button)findViewById(R.id.blur_Btn);
         blurButton.setOnClickListener(new View.OnClickListener() {
@@ -99,23 +113,38 @@ public class MainActivity extends Activity {
                         public void run() {
 
                             long startTimeMilli = -1;
-                            IntObj frameCounter = new IntObj();
-                            ByteBuffer buff;
+
+                            try{
+                                DrawSem.acquire();
+                            }catch(Exception e){}
+
+                            runUiThread();
+
+                            try{
+                                DrawSem.acquire();
+                                DrawSem.release();
+                            }catch(Exception e){}
 
                             while(null != mCapture) {
-                                lock.lock();
+                                StartLock.lock();
                                 try {
+                                    if(startTimeMilli != -1)
+                                        Log.i(TAG, "Cycle time:" + (System.currentTimeMillis()-startTimeMilli));
                                     startTimeMilli = System.currentTimeMillis();
 
-                                    buff = mCapture.GetLatestFrame(frameCounter);
+                                    // Wait for restore to end and release
+                                    DrawOrRestore = false;
+                                    DrawUIToThread.acquire();
+                                    DrawThreadToUI.release();
+                                    DrawUIToThread.acquire();
+                                    DrawUIToThread.release();
 
-                                    if (null != buff) {
+                                    if (null != FrameBuffer) {
                                         ArrayList<int[]> results;
-                                        if (null != classifierObj && classifierObj.PredictFrame(buff, definedThreshold) != -2) {
+                                        if (null != classifierObj && classifierObj.PredictFrame(FrameBuffer, definedThreshold) != -2) {
                                             results = classifierObj.GetCoordinates();
 
                                             // Add draw functions
-
                                             int i, x, y;
                                             dataVector = new Vector<BlurData>();
 
@@ -129,30 +158,24 @@ public class MainActivity extends Activity {
 
                                             if (null == results)
                                                 dataVector = null;
-                                            //dataVector.add(new BlurData(200,500,300,100));
 
-                                                /*MainActivity.this.runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            mServer.blur(dataVector);
-                                                        } catch (Exception e) {
-                                                            Log.i(TAG, e.toString());
-                                                        }
-                                                    }
-                                                });*/
-                                            runUiThread();
-                                            //Thread.sleep(500);
+                                            // Wait for draw to end and release
+                                            DrawOrRestore = true;
+                                            DrawUIToThread.acquire();
+                                            DrawThreadToUI.release();
+                                            DrawUIToThread.acquire();
+                                            DrawUIToThread.release();
+
 
                                         } else
                                             classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
                                     }
 
                                 } catch (Exception e) {
-                                    Log.i(TAG, e.toString());
-                                } finally {
-                                    lock.unlock();
+                                    Log.i(TAG, e.toString() + " " + e.getStackTrace());
                                 }
+
+                                StartLock.unlock();
 
                                 while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
                                     try {
@@ -181,18 +204,15 @@ public class MainActivity extends Activity {
                 Snackbar.make(v, "Capture screen stopped..", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                //((TextView)findViewById(R.id.textView)).setText("Running...");
-
-
                 if(mCapture != null) {
-                    lock.lock();
+                    StartLock.lock();
                     try {
                         mCapture.StopCaputre();
                         mCapture = null;
                     } catch (Exception e) {
                         // handle the exception
                     } finally {
-                        lock.unlock();
+                        StartLock.unlock();
                     }
                 }
 
@@ -205,14 +225,46 @@ public class MainActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    mServer.blur(dataVector);
-                } catch (Exception e) {
-                    Log.i(TAG, e.toString());
+
+                while (null != mCapture) {
+                    try {
+                        DrawSem.release();
+                        DrawThreadToUI.acquire();
+
+                        if(DrawOrRestore) {
+                            mServer.blur(dataVector);
+                        }
+                        else{
+                            mServer.clean(false);
+                            FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                            mServer.restore();
+                        }
+
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    } finally {
+                        DrawUIToThread.release();
+                    }
                 }
             }
         });
     }
+
+    /*private void restoreUiThread(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                /*try {
+                    mServer.clean(false);
+                    FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                    mServer.restore();
+                } catch (Exception e) {
+                    Log.i(TAG, e.toString());
+                }
+                ClearAndRestoreSem.release();
+            }
+        });
+    }*/
 
     @Override
     public void onDestroy() {
@@ -231,6 +283,8 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        //super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CaptureScreen.PERMISSION_CODE) {
             mCapture.CaptureScreenActivityResult(requestCode, resultCode, data);

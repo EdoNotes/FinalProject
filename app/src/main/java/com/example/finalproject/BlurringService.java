@@ -74,10 +74,10 @@ public class BlurringService extends Service
         int i=0;
         if(null == dataVec || dataVec.size()==0)
         {
-            clean();
+            clean(true);
             return;
         }
-        clean();//clean previous views first
+        clean(true);//clean previous views first
         for(BlurData bd:dataVec)
         {
             ConstraintLayout curr;
@@ -99,14 +99,24 @@ public class BlurringService extends Service
         }
         //blurringViews.clear();//make the vector empty for next blurring
     }//blur
-    public void clean()
+    public void clean(boolean clearAlreadyBlurred)
+    {
+        for(ConstraintLayout view:alreadyblurredViews)
+            windowManager.removeViewImmediate(view);
+
+        if(clearAlreadyBlurred)
+            alreadyblurredViews.clear();
+    }
+
+    public void restore()
     {
         for(ConstraintLayout view:alreadyblurredViews)
         {
-            windowManager.removeViewImmediate(view);
+            windowManager.addView(view , view.getLayoutParams());
         }
-        alreadyblurredViews.clear();
+        //alreadyblurredViews.clear();
     }
+
     public class LocalBinder extends Binder
     {
         public BlurringService getServerInstance()
