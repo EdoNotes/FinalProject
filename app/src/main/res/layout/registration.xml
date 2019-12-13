@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/txtRegistration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="20dp"
+                android:text="Registration"
+                android:textColor="#000"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="*Password:"
+                android:textColor="#000" />
+
+            <EditText
+                android:id="@+id/editTxt_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="20dp"
+                android:ems="10"
+                android:hint="(6 digits)"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/txtRePassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="*Re- enter Password:"
+                android:textColor="#000" />
+
+            <EditText
+                android:id="@+id/editTxt_Repassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="20dp"
+                android:ems="10"
+                android:hint="(6 digits)"
+                android:inputType="textPassword" />
+
+            <TextView
+                android:id="@+id/txtEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="*Email:"
+                android:textColor="#000" />
+
+            <EditText
+                android:id="@+id/editTextEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginBottom="20dp"
+                android:ems="10"
+                android:hint="e.g 123@gmail.com"
+                android:inputType="textEmailAddress" />
+
+            <TextView
+                android:id="@+id/txtNetconf"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Net Configuration(Optional):"
+                android:textColor="#000" />
+
+            <RadioGroup
+                android:id="@+id/radioGroup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp">
+
+                <RadioButton
+                    android:id="@+id/radioButtonFlowers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Flowers\t\t\t(Default)" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonPornography"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Pornography" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonBlood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Blood" />
+
+                <RadioButton
+                    android:id="@+id/radioButtonShopping"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Shopping Ads" />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/txtError"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:background="#00FF12"
+                android:text="Submit"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
