@@ -1,20 +1,28 @@
 package com.example.finalproject;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 //import android.support.design.widget.Snackbar;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.app.Activity;
 import android.widget.Button;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.snackbar.Snackbar;
 
@@ -30,6 +38,10 @@ import java.nio.ByteBuffer;
 public class MainActivity extends Activity {
 
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
+
+    private static final int BLURRING_OPCODE_DRAW = 1;
+    private static final int BLURRING_OPCODE_RESTORE = 0;
+
     boolean mBounded;
     BlurringService mServer;
     private Button blurButton;
@@ -48,8 +60,6 @@ public class MainActivity extends Activity {
     public static final float definedThreshold = 0.5f;
 
     private final Lock StartLock = new ReentrantLock(true);
-    private static Semaphore DrawSem = new Semaphore(1);
-    private static Semaphore DrawUIToThread = new Semaphore(1);
     private static Semaphore DrawThreadToUI = new Semaphore(0);
 
     private static volatile boolean DrawOrRestore = true;
@@ -66,6 +76,8 @@ public class MainActivity extends Activity {
         bindService(intent,mConnection,BIND_AUTO_CREATE);
 
         frameCounter = new IntObj();
+
+        mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,10 +91,12 @@ public class MainActivity extends Activity {
             {
                 if(isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
-                    Vector<BlurData> dataVector=new Vector<BlurData>();
-                    //dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
-                    dataVector.add(new BlurData(100,0,500,500));
-                    mServer.blur(dataVector);
+                    try {
+                        dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
+                        dataVector.add(new BlurData(100, 0, 500, 500));
+                    } catch (Exception e) {
+                    }
+
                 }
                 else
                 {
@@ -103,94 +117,91 @@ public class MainActivity extends Activity {
                 Snackbar.make(v, "Capture screen started..", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                if(mCapture == null) {
-                    mCapture = new CaptureScreen(MainActivity.this , defineDelayMilli, definedRatio, definedDensity);
-                    mCapture.StartCaputre();
+                if (mCapture == null) {
+                    mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
+                    return;
+                }
 
-                    classifierObj = new FrameClassifier(MainActivity.this , definedRatio);
+                if(!isLayoutOverlayPermissionGranted(MainActivity.this))
+                {
+                    grantLayoutOverlayPermission(MainActivity.this);
+                }
 
-                    runnableObj = new Runnable() {
-                        public void run() {
+                if(mCapture.PermissionGranted != 1 || !isLayoutOverlayPermissionGranted(MainActivity.this)) {
+                    Snackbar.make(v, "Permissions not granted", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                    return;
+                }
 
-                            long startTimeMilli = -1;
+                mCapture.StartCaputre();
 
-                            try{
-                                DrawSem.acquire();
-                            }catch(Exception e){}
+                classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
 
-                            runUiThread();
+                runnableObj = new Runnable() {
+                    public void run() {
 
-                            try{
-                                DrawSem.acquire();
-                                DrawSem.release();
-                            }catch(Exception e){}
+                        long startTimeMilli = -1;
 
-                            while(null != mCapture) {
-                                StartLock.lock();
-                                try {
-                                    if(startTimeMilli != -1)
-                                        Log.i(TAG, "Cycle time:" + (System.currentTimeMillis()-startTimeMilli));
-                                    startTimeMilli = System.currentTimeMillis();
+                        while (null != mCapture) {
+                            StartLock.lock();
+                            try {
+                                if (startTimeMilli != -1)
+                                    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
+                                startTimeMilli = System.currentTimeMillis();
 
-                                    // Wait for restore to end and release
-                                    DrawOrRestore = false;
-                                    DrawUIToThread.acquire();
-                                    DrawThreadToUI.release();
-                                    DrawUIToThread.acquire();
-                                    DrawUIToThread.release();
+                                // Clean and restore
+                                Message completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE , mServer);
+                                completeMessage.sendToTarget();
+                                DrawThreadToUI.acquire();
 
-                                    if (null != FrameBuffer) {
-                                        ArrayList<int[]> results;
-                                        if (null != classifierObj && classifierObj.PredictFrame(FrameBuffer, definedThreshold) != -2) {
-                                            results = classifierObj.GetCoordinates();
+                                if (null != FrameBuffer) {
+                                    ArrayList<int[]> results;
+                                    if (null != classifierObj && classifierObj.PredictFrame(FrameBuffer, definedThreshold) != -2) {
+                                        results = classifierObj.GetCoordinates();
 
-                                            // Add draw functions
-                                            int i, x, y;
-                                            dataVector = new Vector<BlurData>();
+                                        // Add draw functions
+                                        int i, x, y;
+                                        dataVector = new Vector<BlurData>();
 
-                                            for (i = 0; null != results && i < results.size(); i++) {
-                                                x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
-                                                y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
-                                                if (results.get(i)[2] > 0 && results.get(i)[3] > 0) {
-                                                    dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
-                                                }
+                                        for (i = 0; null != results && i < results.size(); i++) {
+                                            x = results.get(i)[1] < 0 ? 0 : results.get(i)[1];
+                                            y = results.get(i)[0] < 0 ? 0 : results.get(i)[0];
+                                            if (results.get(i)[2] > 0 && results.get(i)[3] > 0) {
+                                                dataVector.add(new BlurData(x, y, results.get(i)[2] - x, results.get(i)[3] - y));
                                             }
+                                        }
 
-                                            if (null == results)
-                                                dataVector = null;
+                                        if (null == results)
+                                            dataVector = null;
 
-                                            // Wait for draw to end and release
-                                            DrawOrRestore = true;
-                                            DrawUIToThread.acquire();
-                                            DrawThreadToUI.release();
-                                            DrawUIToThread.acquire();
-                                            DrawUIToThread.release();
+                                        // Draw
+                                        completeMessage = handler.obtainMessage(BLURRING_OPCODE_DRAW , mServer);
+                                        completeMessage.sendToTarget();
+                                        DrawThreadToUI.acquire();
 
-
-                                        } else
-                                            classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
-                                    }
-
-                                } catch (Exception e) {
-                                    Log.i(TAG, e.toString() + " " + e.getStackTrace());
+                                    } else
+                                        classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
                                 }
 
-                                StartLock.unlock();
-
-                                while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
-                                    try {
-                                        Thread.sleep(1);
-                                    } catch (Exception e) {
-                                        Log.i(TAG, "Failed to Sleep in Background thread");
-                                    }
-                                }
+                            } catch (Exception e) {
+                                Log.i(TAG, e.toString() + " " + e.getStackTrace());
                             }
 
-                        }
-                    };
+                            StartLock.unlock();
 
-                    new Thread(runnableObj).start();
-                }
+                            while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
+                                try {
+                                    Thread.sleep(1);
+                                } catch (Exception e) {
+                                    Log.i(TAG, "Failed to Sleep in Background thread");
+                                }
+                            }
+                        }
+
+                    }
+                };
+
+                new Thread(runnableObj).start();
 
             }
         });
@@ -205,10 +216,12 @@ public class MainActivity extends Activity {
                         .setAction("Action", null).show();
 
                 if(mCapture != null) {
+                    CaptureScreen tempobj = mCapture;
+                    mCapture = null;
+
                     StartLock.lock();
                     try {
-                        mCapture.StopCaputre();
-                        mCapture = null;
+                        tempobj.StopCaputre();
                     } catch (Exception e) {
                         // handle the exception
                     } finally {
@@ -221,50 +234,34 @@ public class MainActivity extends Activity {
 
     }
 
-    private void runUiThread(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+    Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message inputMessage) {
 
-                while (null != mCapture) {
-                    try {
-                        DrawSem.release();
-                        DrawThreadToUI.acquire();
+            BlurringService mServer = (BlurringService) inputMessage.obj;
 
-                        if(DrawOrRestore) {
-                            mServer.blur(dataVector);
-                        }
-                        else{
-                            mServer.clean(false);
-                            FrameBuffer = mCapture.GetLatestFrame(frameCounter);
-                            mServer.restore();
-                        }
-
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    } finally {
-                        DrawUIToThread.release();
-                    }
+            try {
+                switch (inputMessage.what) {
+                    case BLURRING_OPCODE_DRAW:
+                        mServer.clean();
+                        mServer.remove_alreadyBlurred();
+                        mServer.blur(dataVector);
+                        break;
+                    case BLURRING_OPCODE_RESTORE:
+                        mServer.clean();
+                        FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                        mServer.restore();
+                        break;
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+            } finally {
+                DrawThreadToUI.release();
             }
-        });
-    }
 
-    /*private void restoreUiThread(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                /*try {
-                    mServer.clean(false);
-                    FrameBuffer = mCapture.GetLatestFrame(frameCounter);
-                    mServer.restore();
-                } catch (Exception e) {
-                    Log.i(TAG, e.toString());
-                }
-                ClearAndRestoreSem.release();
-            }
-        });
-    }*/
+        }
+    };
+
 
     @Override
     public void onDestroy() {
@@ -287,7 +284,19 @@ public class MainActivity extends Activity {
         //super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CaptureScreen.PERMISSION_CODE) {
-            mCapture.CaptureScreenActivityResult(requestCode, resultCode, data);
+            if(null != mCapture) {
+                mCapture.PermissionGranted = 1;
+                mCapture.Per_requestCode = requestCode;
+                mCapture.Per_resultCode = resultCode;
+                mCapture.Per_data = data;
+            }
+        }
+        else
+        {
+            if(null != mCapture) {
+                mCapture.PermissionGranted = 0;
+                mCapture.Per_requestCode = 0;
+            }
         }
     }
 

@@ -42,6 +42,12 @@ public class CaptureScreen {
 
     private long frameCounter = 0;
 
+    public int PermissionGranted = -1;
+    public int Per_requestCode;
+    public int Per_resultCode;
+    public Intent Per_data;
+
+
     public CaptureScreen(Activity actv , long delayMilli , int ratio , int density)
     {
 
@@ -59,7 +65,12 @@ public class CaptureScreen {
 
         g_width = ratio;//(int)(((double)500/g_metrics.heightPixels)*g_metrics.widthPixels); // 300
         g_height = g_width;//g_metrics.heightPixels;                                    // 300
-        g_density = density;//g_metrics.densityDpi;                                              //420
+        g_density = density;//g_metrics.densityDpi;                                          // 420
+
+        frameCounter = 0;
+
+        MediaProjectionManager projectionManager = (MediaProjectionManager) mainActiv.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
+        mainActiv.startActivityForResult(projectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
     }
 
 
@@ -72,10 +83,11 @@ public class CaptureScreen {
             return;
         }
 
-        frameCounter = 0;
+        if(PermissionGranted == 1)
+            CaptureScreenActivityResult(Per_requestCode, Per_resultCode, Per_data);
+        else if(PermissionGranted == 0)
+            Per_requestCode = 0;
 
-        MediaProjectionManager projectionManager = (MediaProjectionManager) mainActiv.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
-        mainActiv.startActivityForResult(projectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
     }
 
     public void StopCaputre() {
@@ -98,9 +110,15 @@ public class CaptureScreen {
 
         Image img = null;
         try {
+
+            long startTimeMilli = System.currentTimeMillis();
             img = mImageReader.acquireLatestImage();
+            Log.i(TAG, "AcquireLatestImage time:" + (System.currentTimeMillis() - startTimeMilli));
+
 
             if (img != null) {
+                startTimeMilli = System.currentTimeMillis();
+
                 Image.Plane[] planes = img.getPlanes();
                 if (planes[0].getBuffer() == null) {
                     if (null != img)
@@ -117,6 +135,7 @@ public class CaptureScreen {
                 //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888); // Debug
                 ByteBuffer buffer = planes[0].getBuffer();
                 ByteBuffer conv_buffer = ByteBuffer.allocateDirect(g_height * g_width * 3);
+
                 for (i = 0; i < g_height; ++i) {
                     for (j = 0; j < g_width; ++j) {
                         conv_buffer.put(offset2, buffer.get(offset));             // R
@@ -137,6 +156,7 @@ public class CaptureScreen {
                     }
                     offset += rowPadding;
                 }
+                Log.i(TAG, "ConvertImageToBuffer time:" + (System.currentTimeMillis() - startTimeMilli));
 
                 g_bytebuffer = conv_buffer;
                 frameCounter++;
@@ -161,6 +181,7 @@ public class CaptureScreen {
                     }
                 }*/
                 // Debug - end
+
 
             }
             else
@@ -196,7 +217,7 @@ public class CaptureScreen {
                         (Context.MEDIA_PROJECTION_SERVICE);
                 mProjection = projectionManager.getMediaProjection(resultCode, data);
 
-                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 3);
+                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
 
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,

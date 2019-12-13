@@ -6,6 +6,7 @@ import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -29,6 +30,8 @@ public class BlurringService extends Service
     private Point szWindow = new Point(0,0);
     private LayoutInflater layoutInflater;
     WindowManager.LayoutParams params;
+
+    private long startTimeMilli;
     /**
      *Todo later
      */
@@ -72,12 +75,14 @@ public class BlurringService extends Service
     public void blur(Vector<BlurData> dataVec)
     {
         int i=0;
+
+        clean();
+
         if(null == dataVec || dataVec.size()==0)
-        {
-            clean(true);
             return;
-        }
-        clean(true);//clean previous views first
+
+        startTimeMilli = System.currentTimeMillis();
+
         for(BlurData bd:dataVec)
         {
             ConstraintLayout curr;
@@ -97,24 +102,39 @@ public class BlurringService extends Service
             alreadyblurredViews.add(view);
             i++;
         }
-        //blurringViews.clear();//make the vector empty for next blurring
+        blurringViews.clear();//make the vector empty for next blurring
+
+        Log.i(TAG, "blur time:" + (System.currentTimeMillis() - startTimeMilli));
     }//blur
-    public void clean(boolean clearAlreadyBlurred)
+    public void clean()
     {
+        startTimeMilli = System.currentTimeMillis();
+
         for(ConstraintLayout view:alreadyblurredViews)
             windowManager.removeViewImmediate(view);
 
-        if(clearAlreadyBlurred)
-            alreadyblurredViews.clear();
+        Log.i(TAG, "clean time:" + (System.currentTimeMillis() - startTimeMilli));
     }
 
     public void restore()
     {
+        startTimeMilli = System.currentTimeMillis();
+
         for(ConstraintLayout view:alreadyblurredViews)
         {
             windowManager.addView(view , view.getLayoutParams());
         }
-        //alreadyblurredViews.clear();
+
+        Log.i(TAG, "restore time:" + (System.currentTimeMillis() - startTimeMilli));
+    }
+
+    public void remove_alreadyBlurred()
+    {
+        startTimeMilli = System.currentTimeMillis();
+
+        alreadyblurredViews.clear();
+
+        Log.i(TAG, "remove_alreadyBlurred time:" + (System.currentTimeMillis() - startTimeMilli));
     }
 
     public class LocalBinder extends Binder
