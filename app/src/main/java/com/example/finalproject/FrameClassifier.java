@@ -119,7 +119,7 @@ public class FrameClassifier {
             //AssetManager assetManager = act.getAssets();
             //String[] files = assetManager.list("");
             //MappedByteBuffer tfliteModel = FileUtil.loadMappedFile(act, "mobilenet_v1_1.0_224_quant.tflite");
-            tfLite = new Interpreter(loadModelFile(act.getAssets(), TF_OD_API_MODEL_FILE));
+            tfLite = new Interpreter(loadModelFile(act.getAssets(), TF_OD_API_MODEL_FILE),2);
         } catch (Exception e){
             Log.i("FrameClassifier", "Error reading model", e);
         }
