@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
     private static final int BLURRING_OPCODE_DRAW = 1;
+    private static final int BLURRING_OPCODE_CLEAN = 2;
     private static final int BLURRING_OPCODE_RESTORE = 0;
 
     boolean mBounded;
@@ -61,10 +62,11 @@ public class MainActivity extends Activity {
 
     private final Lock StartLock = new ReentrantLock(true);
     private static Semaphore DrawThreadToUI = new Semaphore(0);
+    private static Semaphore DrawUIToThread = new Semaphore(1);
 
     private static volatile boolean DrawOrRestore = true;
 
-    private static ByteBuffer FrameBuffer;
+    //private static ByteBuffer FrameBuffer;
     private static IntObj frameCounter;
 
     @Override
@@ -141,25 +143,46 @@ public class MainActivity extends Activity {
                     public void run() {
 
                         long startTimeMilli = -1;
+                        ByteBuffer FrameBuffer;
+                        Message completeMessage;
 
                         while (null != mCapture) {
                             StartLock.lock();
                             try {
-                                if (startTimeMilli != -1)
-                                    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
-                                startTimeMilli = System.currentTimeMillis();
+                                //if (startTimeMilli != -1)
+                                //    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
+                                //startTimeMilli = System.currentTimeMillis();
 
-                                // Clean and restore
-                                Message completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE , mServer);
+                                startTimeMilli = System.currentTimeMillis();
+                                // Clean
+                                //DrawUIToThread.acquire();
+                                completeMessage = handler.obtainMessage(BLURRING_OPCODE_CLEAN , mServer);
                                 completeMessage.sendToTarget();
                                 DrawThreadToUI.acquire();
+                                Log.i(TAG, "CleanHandler time:" + (System.currentTimeMillis() - startTimeMilli));
+
+                                startTimeMilli = System.currentTimeMillis();
+                                FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                                Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+
+                                startTimeMilli = System.currentTimeMillis();
+                                // Restore
+                                completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE , mServer);
+                                completeMessage.sendToTarget();
+                                DrawThreadToUI.acquire();
+                                Log.i(TAG, "RestoreHandler time:" + (System.currentTimeMillis() - startTimeMilli));
 
                                 if (null != FrameBuffer) {
                                     ArrayList<int[]> results;
+
+                                    startTimeMilli = System.currentTimeMillis();
                                     if (null != classifierObj && classifierObj.PredictFrame(FrameBuffer, definedThreshold) != -2) {
                                         results = classifierObj.GetCoordinates();
 
+                                        Log.i(TAG, "PredictFrame and GetCoordinates time:" + (System.currentTimeMillis() - startTimeMilli));
+
                                         // Add draw functions
+                                        startTimeMilli = System.currentTimeMillis();
                                         int i, x, y;
                                         dataVector = new Vector<BlurData>();
 
@@ -173,11 +196,16 @@ public class MainActivity extends Activity {
 
                                         if (null == results)
                                             dataVector = null;
+                                        Log.i(TAG, "Build Vector from Results time:" + (System.currentTimeMillis() - startTimeMilli));
 
+
+                                        startTimeMilli = System.currentTimeMillis();
                                         // Draw
                                         completeMessage = handler.obtainMessage(BLURRING_OPCODE_DRAW , mServer);
                                         completeMessage.sendToTarget();
                                         DrawThreadToUI.acquire();
+
+                                        Log.i(TAG, "DrawHandler time:" + (System.currentTimeMillis() - startTimeMilli));
 
                                     } else
                                         classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
@@ -247,9 +275,10 @@ public class MainActivity extends Activity {
                         mServer.remove_alreadyBlurred();
                         mServer.blur(dataVector);
                         break;
-                    case BLURRING_OPCODE_RESTORE:
+                    case BLURRING_OPCODE_CLEAN:
                         mServer.clean();
-                        FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                        break;
+                    case BLURRING_OPCODE_RESTORE:
                         mServer.restore();
                         break;
                 }

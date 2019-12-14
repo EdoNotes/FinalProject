@@ -76,7 +76,7 @@ public class BlurringService extends Service
     {
         int i=0;
 
-        clean();
+        //clean();
 
         if(null == dataVec || dataVec.size()==0)
             return;
@@ -111,7 +111,7 @@ public class BlurringService extends Service
         startTimeMilli = System.currentTimeMillis();
 
         for(ConstraintLayout view:alreadyblurredViews)
-            windowManager.removeViewImmediate(view);
+            windowManager.removeView(view);
 
         Log.i(TAG, "clean time:" + (System.currentTimeMillis() - startTimeMilli));
     }

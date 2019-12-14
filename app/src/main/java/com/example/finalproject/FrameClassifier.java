@@ -156,8 +156,10 @@ public class FrameClassifier {
         outputMap.put(3, numDetections);
 
         try {
+            long startTimeMilli = System.currentTimeMillis();
             // Run the inference call.
             tfLite.runForMultipleInputsOutputs(inputArray, outputMap);
+            Log.i(TAG, "RunningDetector time:" + (System.currentTimeMillis() - startTimeMilli));
 
             // Show the best detections.
             // after scaling them back to the input size.

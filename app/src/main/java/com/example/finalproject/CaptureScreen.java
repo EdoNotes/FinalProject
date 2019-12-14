@@ -156,7 +156,7 @@ public class CaptureScreen {
                     }
                     offset += rowPadding;
                 }
-                Log.i(TAG, "ConvertImageToBuffer time:" + (System.currentTimeMillis() - startTimeMilli));
+
 
                 g_bytebuffer = conv_buffer;
                 frameCounter++;
@@ -182,7 +182,7 @@ public class CaptureScreen {
                 }*/
                 // Debug - end
 
-
+                Log.i(TAG, "ConvertImageToBuffer time:" + (System.currentTimeMillis() - startTimeMilli));
             }
             else
                 return null;
