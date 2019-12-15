@@ -21,6 +21,7 @@ import android.view.View;
 import android.app.Activity;
 import android.widget.Button;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -94,8 +95,10 @@ public class MainActivity extends Activity {
                 if(isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     try {
-                        dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
-                        dataVector.add(new BlurData(100, 0, 500, 500));
+                        Vector vec=new Vector<ConstraintLayout>();
+                        //dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
+                        vec.add(new BlurData(100, 0, 0, 0));
+                        mServer.blur(vec);
                     } catch (Exception e) {
                     }
 

@@ -133,14 +133,21 @@ public class CaptureScreen {
 
                 int offset = 0, i, j, offset2 = 0;
                 //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888); // Debug
-                ByteBuffer buffer = planes[0].getBuffer();
+                //ByteBuffer buffer = planes[0].getBuffer();
                 ByteBuffer conv_buffer = ByteBuffer.allocateDirect(g_height * g_width * 3);
+
+                byte[] arr = new byte[planes[0].getBuffer().remaining()];
+                planes[0].getBuffer().get(arr);
 
                 for (i = 0; i < g_height; ++i) {
                     for (j = 0; j < g_width; ++j) {
-                        conv_buffer.put(offset2, buffer.get(offset));             // R
-                        conv_buffer.put(offset2 + 1, buffer.get(offset + 1));   // G
-                        conv_buffer.put(offset2 + 2, buffer.get(offset + 2));   // B
+                        //conv_buffer.put(offset2, buffer.get(offset));             // R
+                        //conv_buffer.put(offset2 + 1, buffer.get(offset + 1));   // G
+                        //conv_buffer.put(offset2 + 2, buffer.get(offset + 2));   // B
+
+                        conv_buffer.put(offset2 , arr[offset]);
+                        conv_buffer.put(offset2+1 , arr[offset+1]);
+                        conv_buffer.put(offset2+2 , arr[offset+2]);
 
                         // Debug - start
                         /*int pixel = 0;
