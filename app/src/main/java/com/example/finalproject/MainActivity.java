@@ -274,8 +274,8 @@ public class MainActivity extends Activity {
             try {
                 switch (inputMessage.what) {
                     case BLURRING_OPCODE_DRAW:
-                        mServer.clean();
-                        mServer.remove_alreadyBlurred();
+                        //mServer.clean();
+                        //mServer.remove_alreadyBlurred();
                         mServer.blur(dataVector);
                         break;
                     case BLURRING_OPCODE_CLEAN:

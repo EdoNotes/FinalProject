@@ -31,6 +31,7 @@ public class BlurringService extends Service
     private Point szWindow = new Point(0,0);
     private LayoutInflater layoutInflater;
     WindowManager.LayoutParams params;
+    int[] prev_heights = new int[10];
 
     private long startTimeMilli;
     /**
@@ -56,6 +57,8 @@ public class BlurringService extends Service
             windowManager.removeView(bubbleLayout);
     }
     private void handleStart(){
+        int i=0;
+
         windowManager=(WindowManager) getSystemService(WINDOW_SERVICE);
         windowManager.getDefaultDisplay().getSize(szWindow);
         layoutInflater=(LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -67,6 +70,26 @@ public class BlurringService extends Service
                 Build.VERSION.SDK_INT>=28 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
+
+        for(i=0; i<10; i++)
+        {
+            ConstraintLayout curr;
+            curr=(ConstraintLayout) layoutInflater.inflate(R.layout.layout_bubble_head, null);
+            blurringViews.add(curr);
+            prev_heights[i] = 0;
+        }
+        i=1;
+        for(ConstraintLayout view:blurringViews)
+        {
+            params.x=i;
+            params.y=1;
+            params.gravity = Gravity.TOP|Gravity.LEFT;
+            params.height=0;
+            params.width=1;
+            view.setLayoutParams(params);
+            windowManager.addView(view,params);
+            i++;
+        }
     }
     @Override
     public IBinder onBind(Intent intent)
@@ -75,16 +98,14 @@ public class BlurringService extends Service
     }
     public void blur(Vector<BlurData> dataVec)
     {
-        int i=0;
-
-        //clean();
+        clean();
 
         if(null == dataVec || dataVec.size()==0)
             return;
 
         startTimeMilli = System.currentTimeMillis();
 
-        for(BlurData bd:dataVec)
+        /*for(BlurData bd:dataVec)
         {
             ConstraintLayout curr;
             curr=(ConstraintLayout) layoutInflater.inflate(R.layout.layout_bubble_head, null);
@@ -104,15 +125,46 @@ public class BlurringService extends Service
             i++;
         }
         blurringViews.clear();//make the vector empty for next blurring
+        */
+        ConstraintLayout view;
+        BlurData curr;
+        int i = 0;
+
+        for(BlurData bd:dataVec) {
+            view = blurringViews.get(i);
+            curr = dataVec.get(i);
+            params.x = curr.getX();
+            params.y = curr.getY();
+            //params.gravity = Gravity.TOP|Gravity.LEFT;
+            params.height = curr.getHeight();
+            params.width = curr.getWidth();
+            //view.setLayoutParams(params);
+            windowManager.updateViewLayout(view , params);
+            //windowManager.addView(view,params);
+            //alreadyblurredViews.add(view);
+            i++;
+        }
 
         Log.i(TAG, "blur time:" + (System.currentTimeMillis() - startTimeMilli));
     }//blur
     public void clean()
     {
+        int i=0;
+
         startTimeMilli = System.currentTimeMillis();
 
-        for(ConstraintLayout view:alreadyblurredViews)
-            windowManager.removeViewImmediate(view);
+        ConstraintLayout view;
+        params.height = 0;
+        for(i=0; i<10; i++)
+        {
+            view = blurringViews.get(i);
+            //windowManager.removeViewImmediate(view);
+            prev_heights[i] = view.getHeight();
+            if(prev_heights[i] == 0)
+                break;
+            //view.setLayoutParams(params);
+            windowManager.updateViewLayout(view, params);
+        }
 
         Log.i(TAG, "clean time:" + (System.currentTimeMillis() - startTimeMilli));
     }
@@ -121,9 +173,16 @@ public class BlurringService extends Service
     {
         startTimeMilli = System.currentTimeMillis();
 
-        for(ConstraintLayout view:alreadyblurredViews)
+        int i = 0;
+
+        for(ConstraintLayout view:blurringViews)
         {
-            windowManager.addView(view , view.getLayoutParams());
+            //params.height = prev_heights[i];
+            if(prev_heights[i] == 0)
+                break;
+            view.getLayoutParams().height = prev_heights[i];
+            windowManager.updateViewLayout(view , view.getLayoutParams());
+            i++;
         }
 
         Log.i(TAG, "restore time:" + (System.currentTimeMillis() - startTimeMilli));
