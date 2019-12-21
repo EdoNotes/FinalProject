@@ -1,24 +1,15 @@
 package com.example.finalproject;
-
 import android.app.Activity;
 import static android.app.Activity.RESULT_OK;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
-import android.os.Environment;
 import android.util.Log;
-
-import com.example.finalproject.MainActivity;
-
-import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
-
 
 public class CaptureScreen {
 
@@ -67,7 +58,7 @@ public class CaptureScreen {
         g_height = g_width;//g_metrics.heightPixels;                                    // 300
         g_density = density;//g_metrics.densityDpi;                                          // 420
 
-        frameCounter = 0;
+        //frameCounter = 0;
 
         MediaProjectionManager projectionManager = (MediaProjectionManager) mainActiv.getSystemService(Context.MEDIA_PROJECTION_SERVICE);
         mainActiv.startActivityForResult(projectionManager.createScreenCaptureIntent(), PERMISSION_CODE);
@@ -112,6 +103,9 @@ public class CaptureScreen {
         try {
 
             long startTimeMilli = System.currentTimeMillis();
+            try {
+                Thread.sleep(0);
+            } catch (Exception e) {}
             img = mImageReader.acquireLatestImage();
             Log.i(TAG, "AcquireLatestImage time:" + (System.currentTimeMillis() - startTimeMilli));
 
@@ -132,8 +126,10 @@ public class CaptureScreen {
                 //byte[] newData = new byte[g_width * g_height * 3];
 
                 int offset = 0, i, j, offset2 = 0;
-                //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888); // Debug
+                // Debug
+                //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888);
                 //ByteBuffer buffer = planes[0].getBuffer();
+                // Debug end
                 ByteBuffer conv_buffer = ByteBuffer.allocateDirect(g_height * g_width * 3);
 
                 byte[] arr = new byte[planes[0].getBuffer().remaining()];
@@ -166,7 +162,7 @@ public class CaptureScreen {
 
 
                 g_bytebuffer = conv_buffer;
-                frameCounter++;
+                //frameCounter++;
 
                 // Debug - start
                 /*FileOutputStream fos = null;
@@ -212,6 +208,19 @@ public class CaptureScreen {
         return buffer;
     }
 
+    public void CleanFrameQueue(){
+        Image img;
+        try {
+            img = mImageReader.acquireLatestImage();
+            if (null != img)
+                img.close();
+        }catch (Exception e){}
+    }
+
+    public long GetFrameCounter(){
+        return frameCounter;
+    }
+
 
 
     public void CaptureScreenActivityResult(int requestCode, int resultCode, Intent data) {
@@ -224,11 +233,18 @@ public class CaptureScreen {
                         (Context.MEDIA_PROJECTION_SERVICE);
                 mProjection = projectionManager.getMediaProjection(resultCode, data);
 
-                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
+                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 10);
 
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                         mImageReader.getSurface(), null, null);
+
+                mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                    @Override
+                    public void onImageAvailable(ImageReader reader) {
+                        frameCounter++;
+                    }
+                    }, null);
             }
         }
     }

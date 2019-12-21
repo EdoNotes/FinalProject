@@ -196,12 +196,10 @@ public class FrameClassifier {
     public ArrayList<int[]> GetCoordinates(){
 
         int i;
-        ArrayList<int[]> al = null;
+        ArrayList<int[]> al = new ArrayList<int[]>();
 
         for(i=0; i<g_recognitions.size(); i++)
         {
-            if(null == al)
-                al = new ArrayList<int[]>();
             int loc[] = {g_recognitions.get(i).location.top < 0 ? 0 : (g_recognitions.get(i).location.top > (float)g_metrics.heightPixels ? Math.round(g_metrics.heightPixels) : Math.round(g_recognitions.get(i).location.top)),
                     g_recognitions.get(i).location.left < 0 ? 0 : (g_recognitions.get(i).location.left > (float)g_metrics.widthPixels ? Math.round(g_metrics.widthPixels) : Math.round(g_recognitions.get(i).location.left)),
                     g_recognitions.get(i).location.right < 0 ? 0 : (g_recognitions.get(i).location.right > (float)g_metrics.widthPixels ? Math.round(g_metrics.widthPixels) : Math.round(g_recognitions.get(i).location.right)),

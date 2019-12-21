@@ -157,8 +157,8 @@ public class BlurringService extends Service
         else {
             params.height = 0;
             for (i = i; i < 10; i++) {
-                //if (prev_heights[i] == 0)
-                //break;
+                if (prev_heights[i] == 0)
+                    continue;
                 view = blurringViews.get(i);
                 windowManager.updateViewLayout(view, params);
             }
@@ -180,7 +180,7 @@ public class BlurringService extends Service
             //windowManager.removeViewImmediate(view);
             prev_heights[i] = view.getHeight();
             if(prev_heights[i] == 0)
-                break;
+                continue;
             //view.setLayoutParams(params);
             windowManager.updateViewLayout(view, params);
         }
@@ -198,7 +198,7 @@ public class BlurringService extends Service
         {
             //params.height = prev_heights[i];
             if(prev_heights[i] == 0)
-                break;
+                continue;
             view.getLayoutParams().height = prev_heights[i];
             windowManager.updateViewLayout(view , view.getLayoutParams());
             i++;

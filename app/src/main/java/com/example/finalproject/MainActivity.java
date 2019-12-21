@@ -1,16 +1,11 @@
 package com.example.finalproject;
 
-import android.Manifest;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-//import android.support.design.widget.Snackbar;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -20,19 +15,13 @@ import android.util.Log;
 import android.view.View;
 import android.app.Activity;
 import android.widget.Button;
-
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import com.google.android.material.snackbar.Snackbar;
-
 import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import java.nio.ByteBuffer;
 
 
@@ -42,6 +31,7 @@ public class MainActivity extends Activity {
 
     private static final int BLURRING_OPCODE_DRAW = 1;
     private static final int BLURRING_OPCODE_CLEAN = 2;
+    private static final int BLURRING_OPCODE_GETBUFFER = 3;
     private static final int BLURRING_OPCODE_RESTORE = 0;
 
     boolean mBounded;
@@ -66,6 +56,7 @@ public class MainActivity extends Activity {
     private static Semaphore DrawUIToThread = new Semaphore(1);
 
     private static volatile boolean DrawOrRestore = true;
+    private volatile ByteBuffer FrameBuffer = null;
 
     //private static ByteBuffer FrameBuffer;
     private static IntObj frameCounter;
@@ -145,8 +136,8 @@ public class MainActivity extends Activity {
                 runnableObj = new Runnable() {
                     public void run() {
 
+                        long frameC = -1;
                         long startTimeMilli = -1;
-                        ByteBuffer FrameBuffer;
                         Message completeMessage;
 
                         while (null != mCapture) {
@@ -156,24 +147,47 @@ public class MainActivity extends Activity {
                                 //    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
                                 //startTimeMilli = System.currentTimeMillis();
 
-                                startTimeMilli = System.currentTimeMillis();
-                                // Clean
-                                //DrawUIToThread.acquire();
-                                completeMessage = handler.obtainMessage(BLURRING_OPCODE_CLEAN , mServer);
-                                completeMessage.sendToTarget();
-                                DrawThreadToUI.acquire();
-                                Log.i(TAG, "CleanHandler time:" + (System.currentTimeMillis() - startTimeMilli));
+                                if(null == FrameBuffer) {
+                                    startTimeMilli = System.currentTimeMillis();
+                                    // Clean
+                                    completeMessage = handler.obtainMessage(BLURRING_OPCODE_CLEAN, mServer);
+                                    completeMessage.sendToTarget();
+                                    DrawThreadToUI.acquire();
+                                    //mCapture.CleanFrameQueue();
+                                    frameC = mCapture.GetFrameCounter();
+                                    Log.i(TAG, "GetFrameCounter == " + frameC);
+                                    frameC++;
+                                    try {
+                                        Thread.sleep(10);
+                                    } catch (Exception e) { }
 
-                                startTimeMilli = System.currentTimeMillis();
-                                FrameBuffer = mCapture.GetLatestFrame(frameCounter);
-                                Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+                                    Log.i(TAG, "CleanHandler time:" + (System.currentTimeMillis() - startTimeMilli));
 
-                                startTimeMilli = System.currentTimeMillis();
-                                // Restore
-                                completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE , mServer);
-                                completeMessage.sendToTarget();
-                                DrawThreadToUI.acquire();
-                                Log.i(TAG, "RestoreHandler time:" + (System.currentTimeMillis() - startTimeMilli));
+                                    // GetFrame
+                                    startTimeMilli = System.currentTimeMillis();
+                                    FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                                    Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+
+                                    // Restore
+                                    startTimeMilli = System.currentTimeMillis();
+                                    completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE, mServer);
+                                    completeMessage.sendToTarget();
+                                    DrawThreadToUI.acquire();
+                                    try {
+                                        Thread.sleep(0);
+                                    } catch (Exception e) {
+                                    }
+                                    Log.i(TAG, "RestoreHandler time:" + (System.currentTimeMillis() - startTimeMilli));
+                                }
+                                else
+                                {
+                                    // GetFrame
+                                    startTimeMilli = System.currentTimeMillis();
+                                    FrameBuffer = mCapture.GetLatestFrame(frameCounter);
+                                    Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+
+                                    frameC = mCapture.GetFrameCounter();
+                                }
 
                                 if (null != FrameBuffer) {
                                     ArrayList<int[]> results;
@@ -197,12 +211,29 @@ public class MainActivity extends Activity {
                                             }
                                         }
 
-                                        if (null == results)
+                                        if (null == results){
+                                            Log.i(TAG, "Results == null");
                                             dataVector = null;
+                                        }
+                                        else {
+                                            if(results.size() == 0 && frameCounter.value > frameC)
+                                                dataVector = null;
+                                            Log.i(TAG, "Results == " + results.size() + " FrameC == " + frameC);
+                                        }
+
                                         Log.i(TAG, "Build Vector from Results time:" + (System.currentTimeMillis() - startTimeMilli));
 
 
                                         startTimeMilli = System.currentTimeMillis();
+
+                                        /*try {
+                                            Thread.sleep(3000);
+                                        } catch (Exception e) {}*/
+                                        // Clean
+                                        /*completeMessage = handler.obtainMessage(BLURRING_OPCODE_CLEAN , mServer);
+                                        completeMessage.sendToTarget();
+                                        DrawThreadToUI.acquire();*/
+
                                         // Draw
                                         completeMessage = handler.obtainMessage(BLURRING_OPCODE_DRAW , mServer);
                                         completeMessage.sendToTarget();
@@ -220,11 +251,13 @@ public class MainActivity extends Activity {
 
                             StartLock.unlock();
 
-                            while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
-                                try {
-                                    Thread.sleep(1);
-                                } catch (Exception e) {
-                                    Log.i(TAG, "Failed to Sleep in Background thread");
+                            if (null != FrameBuffer) {
+                                while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
+                                    try {
+                                        Thread.sleep(1);
+                                    } catch (Exception e) {
+                                        Log.i(TAG, "Failed to Sleep in Background thread");
+                                    }
                                 }
                             }
                         }
@@ -283,6 +316,9 @@ public class MainActivity extends Activity {
                         break;
                     case BLURRING_OPCODE_RESTORE:
                         mServer.restore();
+                        break;
+                    case BLURRING_OPCODE_GETBUFFER:
+                        FrameBuffer = mCapture.GetLatestFrame(frameCounter);
                         break;
                 }
             }catch (Exception e){
