@@ -9,8 +9,10 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +20,8 @@ import android.widget.LinearLayout;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import java.util.Vector;
+
+import static androidx.constraintlayout.solver.widgets.Optimizer.OPTIMIZATION_NONE;
 
 public class BlurringService extends Service
 {
@@ -89,7 +93,10 @@ public class BlurringService extends Service
             view.setLayoutParams(params);
             windowManager.addView(view,params);
             i++;
+
+            view.setOptimizationLevel(OPTIMIZATION_NONE);
         }
+
     }
     @Override
     public IBinder onBind(Intent intent)
@@ -98,12 +105,16 @@ public class BlurringService extends Service
     }
     public void blur(Vector<BlurData> dataVec)
     {
-        clean();
+        //clean();
+        int i = 0;
+        ConstraintLayout view;
 
-        if(null == dataVec || dataVec.size()==0)
+        if(null == dataVec)
             return;
 
-        startTimeMilli = System.currentTimeMillis();
+        if(dataVec.size()!=0) {
+
+            startTimeMilli = System.currentTimeMillis();
 
         /*for(BlurData bd:dataVec)
         {
@@ -126,23 +137,31 @@ public class BlurringService extends Service
         }
         blurringViews.clear();//make the vector empty for next blurring
         */
-        ConstraintLayout view;
-        BlurData curr;
-        int i = 0;
+            BlurData curr;
 
-        for(BlurData bd:dataVec) {
-            view = blurringViews.get(i);
-            curr = dataVec.get(i);
-            params.x = curr.getX();
-            params.y = curr.getY();
-            //params.gravity = Gravity.TOP|Gravity.LEFT;
-            params.height = curr.getHeight();
-            params.width = curr.getWidth();
-            //view.setLayoutParams(params);
-            windowManager.updateViewLayout(view , params);
-            //windowManager.addView(view,params);
-            //alreadyblurredViews.add(view);
-            i++;
+            for (BlurData bd : dataVec) {
+                view = blurringViews.get(i);
+                curr = dataVec.get(i);
+                params.x = curr.getX();
+                params.y = curr.getY();
+                //params.gravity = Gravity.TOP|Gravity.LEFT;
+                params.height = curr.getHeight();
+                params.width = curr.getWidth();
+                //view.setLayoutParams(params);
+                windowManager.updateViewLayout(view, params);
+                //windowManager.addView(view,params);
+                //alreadyblurredViews.add(view);
+                i++;
+            }
+        }
+        else {
+            params.height = 0;
+            for (i = i; i < 10; i++) {
+                //if (prev_heights[i] == 0)
+                //break;
+                view = blurringViews.get(i);
+                windowManager.updateViewLayout(view, params);
+            }
         }
 
         Log.i(TAG, "blur time:" + (System.currentTimeMillis() - startTimeMilli));
@@ -204,5 +223,4 @@ public class BlurringService extends Service
             return BlurringService.this;
         }
     }
-
 }
