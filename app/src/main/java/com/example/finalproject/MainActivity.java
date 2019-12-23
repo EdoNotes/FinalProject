@@ -140,6 +140,8 @@ public class MainActivity extends Activity {
                         long startTimeMilli = -1;
                         Message completeMessage;
 
+                        frameCounter.value = -1;
+
                         while (null != mCapture) {
                             StartLock.lock();
                             try {
@@ -147,19 +149,16 @@ public class MainActivity extends Activity {
                                 //    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
                                 //startTimeMilli = System.currentTimeMillis();
 
-                                if(null == FrameBuffer) {
+                                if(frameCounter.value != -1) {
                                     startTimeMilli = System.currentTimeMillis();
                                     // Clean
                                     completeMessage = handler.obtainMessage(BLURRING_OPCODE_CLEAN, mServer);
                                     completeMessage.sendToTarget();
                                     DrawThreadToUI.acquire();
                                     //mCapture.CleanFrameQueue();
-                                    frameC = mCapture.GetFrameCounter();
-                                    Log.i(TAG, "GetFrameCounter == " + frameC);
-                                    frameC++;
-                                    try {
-                                        Thread.sleep(10);
-                                    } catch (Exception e) { }
+                                    //frameC = mCapture.GetFrameCounter();
+                                    //Log.i(TAG, "GetFrameCounter == " + frameC);
+                                    //frameC++;
 
                                     Log.i(TAG, "CleanHandler time:" + (System.currentTimeMillis() - startTimeMilli));
 
@@ -173,10 +172,10 @@ public class MainActivity extends Activity {
                                     completeMessage = handler.obtainMessage(BLURRING_OPCODE_RESTORE, mServer);
                                     completeMessage.sendToTarget();
                                     DrawThreadToUI.acquire();
-                                    try {
-                                        Thread.sleep(0);
-                                    } catch (Exception e) {
-                                    }
+                                /*try {
+                                    Thread.sleep(0);
+                                } catch (Exception e) {
+                                }*/
                                     Log.i(TAG, "RestoreHandler time:" + (System.currentTimeMillis() - startTimeMilli));
                                 }
                                 else
@@ -186,8 +185,15 @@ public class MainActivity extends Activity {
                                     FrameBuffer = mCapture.GetLatestFrame(frameCounter);
                                     Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
 
-                                    frameC = mCapture.GetFrameCounter();
+                                    //frameC = mCapture.GetFrameCounter();
                                 }
+
+                                /*if(mCapture.GetFrameCounter() == -1) {
+                                    try {
+                                        Thread.sleep(10);
+                                    } catch (Exception e) {
+                                    }
+                                }*/
 
                                 if (null != FrameBuffer) {
                                     ArrayList<int[]> results;
@@ -211,15 +217,14 @@ public class MainActivity extends Activity {
                                             }
                                         }
 
-                                        if (null == results){
+                                        if (null == results) {
                                             Log.i(TAG, "Results == null");
                                             dataVector = null;
-                                        }
-                                        else {
-                                            if(results.size() == 0 && frameCounter.value > frameC)
+                                        } /*else {
+                                            if (results.size() == 0 && frameCounter.value > frameC)
                                                 dataVector = null;
                                             Log.i(TAG, "Results == " + results.size() + " FrameC == " + frameC);
-                                        }
+                                        }*/
 
                                         Log.i(TAG, "Build Vector from Results time:" + (System.currentTimeMillis() - startTimeMilli));
 
@@ -235,7 +240,7 @@ public class MainActivity extends Activity {
                                         DrawThreadToUI.acquire();*/
 
                                         // Draw
-                                        completeMessage = handler.obtainMessage(BLURRING_OPCODE_DRAW , mServer);
+                                        completeMessage = handler.obtainMessage(BLURRING_OPCODE_DRAW, mServer);
                                         completeMessage.sendToTarget();
                                         DrawThreadToUI.acquire();
 
@@ -251,7 +256,7 @@ public class MainActivity extends Activity {
 
                             StartLock.unlock();
 
-                            if (null != FrameBuffer) {
+                            if (null != FrameBuffer || (null == FrameBuffer && frameCounter.value == -1)) {
                                 while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
                                     try {
                                         Thread.sleep(1);

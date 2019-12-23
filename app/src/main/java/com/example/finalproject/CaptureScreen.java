@@ -125,7 +125,8 @@ public class CaptureScreen {
                 int rowPadding = rowStride - pixelStride * g_width;
                 //byte[] newData = new byte[g_width * g_height * 3];
 
-                int offset = 0, i, j, offset2 = 0;
+                int offset = 0, i, j, offset2 = 0, redDotsbase = 12308;
+                boolean BlurredFrame = true;
                 // Debug
                 //Bitmap bitmap = Bitmap.createBitmap(g_width, g_height, Bitmap.Config.ARGB_8888);
                 //ByteBuffer buffer = planes[0].getBuffer();
@@ -135,15 +136,38 @@ public class CaptureScreen {
                 byte[] arr = new byte[planes[0].getBuffer().remaining()];
                 planes[0].getBuffer().get(arr);
 
+                for (i = 0; i < 3; i++) {
+                    for(j=0; j<2; j++) {
+                        if ((arr[redDotsbase + (i * 4) + (1200*j)] != -1) ||
+                                (arr[redDotsbase + 1 + (i * 4) + (1200*j)] != 0) ||
+                                (arr[redDotsbase + 2 + (i * 4) + (1200*j)] != 0)) {
+                            BlurredFrame = false;
+                        }
+                    }
+                }
+
+                if(BlurredFrame) {
+                    if (null != img)
+                        img.close();
+                    counter.value = -1;
+                    g_bytebuffer = null;
+                    return null;
+                }
+
                 for (i = 0; i < g_height; ++i) {
                     for (j = 0; j < g_width; ++j) {
-                        //conv_buffer.put(offset2, buffer.get(offset));             // R
+                        //conv_buffer.put(offset2, buffer.get(offset));           // R
                         //conv_buffer.put(offset2 + 1, buffer.get(offset + 1));   // G
                         //conv_buffer.put(offset2 + 2, buffer.get(offset + 2));   // B
 
                         conv_buffer.put(offset2 , arr[offset]);
                         conv_buffer.put(offset2+1 , arr[offset+1]);
                         conv_buffer.put(offset2+2 , arr[offset+2]);
+
+                        /*if(arr[offset] == -1 && arr[offset+1] == 0 && arr[offset+2] == 0)
+                            redDotsCount++;
+                        else
+                            redDotsCount = 0;*/
 
                         // Debug - start
                         /*int pixel = 0;
@@ -233,7 +257,7 @@ public class CaptureScreen {
                         (Context.MEDIA_PROJECTION_SERVICE);
                 mProjection = projectionManager.getMediaProjection(resultCode, data);
 
-                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 10);
+                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
 
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
