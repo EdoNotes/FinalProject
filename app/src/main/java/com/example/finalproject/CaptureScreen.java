@@ -74,8 +74,17 @@ public class CaptureScreen {
             return;
         }
 
-        if(PermissionGranted == 1)
-            CaptureScreenActivityResult(Per_requestCode, Per_resultCode, Per_data);
+        if(PermissionGranted == 1) {
+            //CaptureScreenActivityResult(Per_requestCode, Per_resultCode, Per_data);
+            mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
+
+            mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                @Override
+                public void onImageAvailable(ImageReader reader) {
+                    frameCounter++;
+                }
+            }, null);
+        }
         else if(PermissionGranted == 0)
             Per_requestCode = 0;
 
@@ -102,12 +111,21 @@ public class CaptureScreen {
         Image img = null;
         try {
 
+
+
+            long prev_counter = frameCounter;
+
+            CaptureScreenActivityResult(Per_requestCode, Per_resultCode, Per_data);
+
             long startTimeMilli = System.currentTimeMillis();
             try {
-                Thread.sleep(0);
+                while(prev_counter >= frameCounter)
+                    Thread.sleep(1);
             } catch (Exception e) {}
-            img = mImageReader.acquireLatestImage();
             Log.i(TAG, "AcquireLatestImage time:" + (System.currentTimeMillis() - startTimeMilli));
+
+            img = mImageReader.acquireLatestImage();
+            mProjection.stop();
 
 
             if (img != null) {
@@ -257,18 +275,18 @@ public class CaptureScreen {
                         (Context.MEDIA_PROJECTION_SERVICE);
                 mProjection = projectionManager.getMediaProjection(resultCode, data);
 
-                mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
+                //mImageReader = ImageReader.newInstance(g_width, g_height, PixelFormat.RGBA_8888, 2);
 
                 mProjection.createVirtualDisplay("screen-mirror", g_width, g_height, g_density,
                         android.hardware.display.DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
                         mImageReader.getSurface(), null, null);
 
-                mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
+                /*mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() {
                     @Override
                     public void onImageAvailable(ImageReader reader) {
                         frameCounter++;
                     }
-                    }, null);
+                    }, null);*/
             }
         }
     }

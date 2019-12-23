@@ -35,7 +35,7 @@ public class BlurringService extends Service
     private Point szWindow = new Point(0,0);
     private LayoutInflater layoutInflater;
     WindowManager.LayoutParams params;
-    WindowManager.LayoutParams RedParams;
+    //WindowManager.LayoutParams RedParams;
     int[] prev_heights = new int[10];
 
     private long startTimeMilli;
@@ -76,12 +76,12 @@ public class BlurringService extends Service
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 PixelFormat.TRANSLUCENT);
 
-        RedParams = new WindowManager.LayoutParams(
+        /*RedParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 Build.VERSION.SDK_INT>=28 ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY : WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                PixelFormat.TRANSLUCENT);
+                PixelFormat.TRANSLUCENT);*/
 
         ConstraintLayout curr;
 
@@ -106,7 +106,7 @@ public class BlurringService extends Service
             //view.setOptimizationLevel(OPTIMIZATION_NONE);
         }
 
-        curr=(ConstraintLayout) layoutInflater.inflate(R.layout.layout_bubble_head_red, null);
+        /*curr=(ConstraintLayout) layoutInflater.inflate(R.layout.layout_bubble_head_red, null);
         blurringViews.add(curr);
 
         ConstraintLayout view = blurringViews.get(10);
@@ -114,9 +114,9 @@ public class BlurringService extends Service
         RedParams.y=0;
         RedParams.gravity = Gravity.TOP|Gravity.LEFT;
         RedParams.height=0;
-        RedParams.width=20;
+        RedParams.width=0;
         view.setLayoutParams(RedParams);
-        windowManager.addView(view,RedParams);
+        windowManager.addView(view,RedParams);*/
 
     }
     @Override
@@ -158,9 +158,9 @@ public class BlurringService extends Service
         }
         blurringViews.clear();//make the vector empty for next blurring
         */
-            RedParams.height = 20;
-            windowManager.updateViewLayout(blurringViews.get(10), RedParams);
-            
+            //RedParams.height = 20;
+            //windowManager.updateViewLayout(blurringViews.get(10), RedParams);
+
             BlurData curr;
 
             for (BlurData bd : dataVec) {
@@ -179,10 +179,10 @@ public class BlurringService extends Service
             }
 
         }
-        else {
+        /*else {
             RedParams.height = 0;
             windowManager.updateViewLayout(blurringViews.get(10), RedParams);
-        }
+        }*/
 
         params.height = 0;
         for (i = i; i < 10; i++) {
@@ -215,8 +215,8 @@ public class BlurringService extends Service
             windowManager.updateViewLayout(view, params);
         }
 
-        RedParams.height = 0;
-        windowManager.updateViewLayout(blurringViews.get(10), RedParams);
+        //RedParams.height = 0;
+        //windowManager.updateViewLayout(blurringViews.get(10), RedParams);
 
         Log.i(TAG, "clean time:" + (System.currentTimeMillis() - startTimeMilli));
     }
@@ -237,8 +237,8 @@ public class BlurringService extends Service
             i++;
         }
 
-        RedParams.height = 20;
-        windowManager.updateViewLayout(blurringViews.get(10), RedParams);
+        //RedParams.height = 20;
+        //windowManager.updateViewLayout(blurringViews.get(10), RedParams);
 
         Log.i(TAG, "restore time:" + (System.currentTimeMillis() - startTimeMilli));
     }
