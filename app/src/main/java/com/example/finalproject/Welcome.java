@@ -20,8 +20,8 @@ public class Welcome extends Activity
         super.onCreate(savedInstanceState);
         sharedPreferences=getApplication().getSharedPreferences("MyPref",0);
         editor= sharedPreferences.edit();
-        /*if(sharedPreferences.getAll().size()==0)
-        {*/
+        if(sharedPreferences.getAll().size()==0)
+        {
             setContentView(R.layout.welcome);
             btnRegister=(Button) findViewById(R.id.btnRegister);
             btnRegister.setOnClickListener(new Button.OnClickListener() {
@@ -37,13 +37,13 @@ public class Welcome extends Activity
 
                 }
             });
-        /*}
+        }
         //data already stored --->already registered
         else
             {
                 Intent LoginActivity=new Intent(getBaseContext(), Login.class);
                 startActivity(LoginActivity);
-            }*/
+            }
 
 
     }
