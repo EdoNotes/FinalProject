@@ -16,7 +16,7 @@
         android:gravity="center"
         android:text="Before Getting Started"
         android:textColor="#140F0F"
-        android:textSize="35sp"
+        android:textSize="33sp"
         android:textStyle="bold" />
 
     <TextView
@@ -28,7 +28,7 @@
         android:layout_marginTop="40dp"
         android:layout_marginRight="30dp"
         android:gravity="center"
-        android:text="A verification code was sent to your email.please enter this code below to continue. You also must to click on the link inside the email to verify your registration."
+        android:text="- A verification code was sent to your email.please enter this code below to continue. \n\n- You also must to click on the link inside the email to verify your registration."
         android:textColor="#070101"
         android:textSize="18sp" />
 
@@ -40,9 +40,11 @@
         android:ems="10"
         android:gravity="center"
         android:inputType="textPersonName"
-        android:text="verification code" />
+        android:hint="- verification code -"
+        android:text="" />
 
     <Button
+        android:id="@+id/btnSubmitVerification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

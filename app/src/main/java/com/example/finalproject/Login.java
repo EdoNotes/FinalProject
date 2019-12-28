@@ -15,7 +15,7 @@ Button loginbtn;
 EditText txtloginPass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
         setContentView(R.layout.activity_login);
         setTitle("Sign in");
         loginbtn=(Button)findViewById(R.id.btnLogin);

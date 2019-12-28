@@ -10,7 +10,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/txtRegistration"
@@ -98,13 +98,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
-                    android:text="Flowers\t\t\t(Default)" />
+                    android:text="Persons\t\t\t(Default)" />
 
                 <RadioButton
                     android:id="@+id/radioButtonPornography"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
+                    android:clickable="false"
                     android:text="Pornography" />
 
                 <RadioButton
@@ -122,6 +123,16 @@
                     android:text="Shopping Ads" />
             </RadioGroup>
 
+            <Button
+                android:id="@+id/btnSubmit"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_gravity="bottom|center"
+                android:layout_marginTop="5px"
+                android:background="#00FF12"
+                android:text="Submit"
+                android:textColor="@android:color/white" />
+
             <TextView
                 android:id="@+id/txtError"
                 android:layout_width="wrap_content"
@@ -129,15 +140,6 @@
                 android:layout_marginLeft="10dp"
                 android:textSize="20sp" />
 
-            <Button
-                android:id="@+id/btnSubmit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="40dp"
-                android:background="#00FF12"
-                android:text="Submit"
-                android:textColor="@android:color/white" />
         </LinearLayout>
     </ScrollView>
 

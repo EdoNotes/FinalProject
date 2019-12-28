@@ -40,10 +40,10 @@ public class Welcome extends Activity
         }
         //data already stored --->already registered
         else
-            {
-                Intent LoginActivity=new Intent(getBaseContext(), Login.class);
-                startActivity(LoginActivity);
-            }
+        {
+            Intent LoginActivity=new Intent(getBaseContext(), Login.class);
+            startActivity(LoginActivity);
+        }
 
 
     }
