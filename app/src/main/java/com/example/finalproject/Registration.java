@@ -38,6 +38,12 @@ public class Registration extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+
+                //DEBUGGING
+                //EmailVerification ev = new EmailVerification();
+                //ev.sendSignInLink(Registration.this , "misha3792v@gmail.com" , "123456");
+
+
                 //first check that all fields are filled
                 if(password.getText().toString().isEmpty()||
                         rePassword.getText().toString().isEmpty()||
@@ -82,8 +88,10 @@ public class Registration extends AppCompatActivity
                                     editor.putString("NetCon",checked.getText().toString());
                                 }
                                 editor.commit();//save data
-                                Intent LoginActivity=new Intent(getBaseContext(),Login.class);
-                                startActivity(LoginActivity);
+
+                                EmailVerification ev = new EmailVerification();
+                                ev.sendSignInLink(Registration.this , /*"misha3792v@gmail.com"*/Email.getText().toString() , /*"123456"*/password.getText().toString());
+
                             }
                     }
 
@@ -91,4 +99,10 @@ public class Registration extends AppCompatActivity
             }
         });
     }
+
+    /*public void RunVerificationActivity()
+    {
+        Intent LoginActivity=new Intent(getBaseContext(),Login.class);
+        startActivity(LoginActivity);
+    }*/
 }
