@@ -125,6 +125,7 @@ public class CaptureScreen {
                 int rowPadding = rowStride - pixelStride * g_width;
                 //byte[] newData = new byte[g_width * g_height * 3];
 
+
                 int offset = 0, i, j, offset2 = 0, redDotsbase = 12308;
                 boolean BlurredFrame = true;
                 // Debug
