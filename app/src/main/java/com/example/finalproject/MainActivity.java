@@ -65,19 +65,18 @@ public class MainActivity extends Activity {
     protected void onStart()
     {
         super.onStart();
+
         Intent intent = new Intent(this, BlurringService.class);
 
         if(!isLayoutOverlayPermissionGranted(MainActivity.this))
-        {
             grantLayoutOverlayPermission(MainActivity.this);
 
-            startService(intent);
-            bindService(intent,mConnection,BIND_AUTO_CREATE);
-        }
+        startService(intent);
+        bindService(intent,mConnection,BIND_AUTO_CREATE);
 
         frameCounter = new IntObj();
-
         mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
+
     }
     @Override
     public void onCreate(Bundle savedInstanceState) {
