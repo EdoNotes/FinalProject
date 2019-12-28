@@ -16,7 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".emailVerification"></activity>
+        <activity android:name=".DataLog"></activity>
+        <activity android:name=".ControlPanel" />
+        <activity android:name=".emailVerification" />
         <activity android:name=".Login" />
 
         <service

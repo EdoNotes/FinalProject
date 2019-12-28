@@ -29,7 +29,7 @@ EditText txtloginPass;
                 String SavedPass=sharedPreferences.getString("Password","");
                 if(SavedPass.equals(txtloginPass.getText().toString()))
                 {
-                    Intent MainActivity=new Intent(getBaseContext(), MainActivity.class);
+                    Intent MainActivity=new Intent(getBaseContext(), ControlPanel.class);
                     startActivity(MainActivity);
                 }
                 else

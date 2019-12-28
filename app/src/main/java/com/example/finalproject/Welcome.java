@@ -28,12 +28,12 @@ public class Welcome extends Activity
                 @Override
                 public void onClick(View v)
                 {
-                    //Intent RegisterActivity=new Intent(getBaseContext(),Registration.class);
-                    //startActivity(RegisterActivity);
+                    Intent RegisterActivity=new Intent(getBaseContext(),Registration.class);
+                    startActivity(RegisterActivity);
 
-                    // TEMPORARY FOR DEVELOPMENT
-                    Intent MainActivity=new Intent(getBaseContext(),MainActivity.class);
-                    startActivity(MainActivity);
+//                    // TEMPORARY FOR DEVELOPMENT
+//                    Intent MainActivity=new Intent(getBaseContext(),MainActivity.class);
+//                    startActivity(MainActivity);
 
                 }
             });
