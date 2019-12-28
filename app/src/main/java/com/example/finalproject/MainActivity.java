@@ -66,8 +66,14 @@ public class MainActivity extends Activity {
     {
         super.onStart();
         Intent intent = new Intent(this, BlurringService.class);
-        startService(intent);
-        bindService(intent,mConnection,BIND_AUTO_CREATE);
+
+        if(!isLayoutOverlayPermissionGranted(MainActivity.this))
+        {
+            grantLayoutOverlayPermission(MainActivity.this);
+
+            startService(intent);
+            bindService(intent,mConnection,BIND_AUTO_CREATE);
+        }
 
         frameCounter = new IntObj();
 
