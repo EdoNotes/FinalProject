@@ -1,6 +1,7 @@
 package com.example.finalproject;
 
 import android.content.ComponentName;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
@@ -14,7 +15,15 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.app.Activity;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
@@ -24,8 +33,17 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.nio.ByteBuffer;
 
+import static com.example.finalproject.Welcome.sharedPreferences;
 
-public class MainActivity extends Activity {
+
+public class MainActivity extends AppCompatActivity {
+
+    Spinner dropdown;
+    Button btnChangePassword;
+    Button btnShowDataLog;
+    EditText input;
+    AlertDialog ad;
+    String[] drop_items=new String[]{"Persons","Pornography","Blood","Shopping Ads"};
 
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
@@ -82,29 +100,7 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
-        blurButton=(Button)findViewById(R.id.blur_Btn);
-        blurButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-                if(isLayoutOverlayPermissionGranted(MainActivity.this))
-                {
-                    try {
-                        Vector vec=new Vector<ConstraintLayout>();
-                        //dataVector.add(new BlurData((int)(Math.random() * 150 + 100),(int)(Math.random() * 50 + 450),(int)(Math.random() * 50 + 250),(int)(Math.random() * 50 + 50)));
-                        vec.add(new BlurData(100, 0, 0, 0));
-                        mServer.blur(vec);
-                    } catch (Exception e) {
-                    }
-
-                }
-                else
-                {
-                    grantLayoutOverlayPermission(MainActivity.this);
-                }
-            }
-        });
+        setContentView(R.layout.activity_control_panel);
         // Init gui
         final Button StartBtn = (Button) findViewById(R.id.StartBtn);
         final Button StopBtn = (Button) findViewById(R.id.StopBtn);
@@ -115,8 +111,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                Snackbar.make(v, "Capture screen started..", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(v, "Capture screen started..", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                Toast.makeText(getApplicationContext(), "Capture screen started..", Toast.LENGTH_LONG).show();
 
                 if (mCapture == null) {
                     mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
@@ -129,8 +126,9 @@ public class MainActivity extends Activity {
                 }
 
                 if(mCapture.PermissionGranted != 1 || !isLayoutOverlayPermissionGranted(MainActivity.this)) {
-                    Snackbar.make(v, "Permissions not granted", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    //Snackbar.make(v, "Permissions not granted", Snackbar.LENGTH_LONG)
+                    //       .setAction("Action", null).show();
+                    Toast.makeText(getApplicationContext(), "Permissions not granted", Toast.LENGTH_LONG).show();
                     return;
                 }
 
@@ -286,8 +284,9 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
 
-                Snackbar.make(v, "Capture screen stopped..", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Snackbar.make(v, "Capture screen stopped..", Snackbar.LENGTH_LONG)
+                //        .setAction("Action", null).show();
+                Toast.makeText(getApplicationContext(), "Capture screen stopped..", Toast.LENGTH_LONG).show();
 
                 if(mCapture != null) {
                     CaptureScreen tempobj = mCapture;
@@ -303,6 +302,49 @@ public class MainActivity extends Activity {
                     }
                 }
 
+            }
+        });
+
+
+        dropdown=(Spinner) findViewById(R.id.spinner);
+        btnChangePassword=(Button) findViewById(R.id.btnChangePassword);
+        btnShowDataLog=(Button) findViewById(R.id.BtnShowDataLog);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, drop_items);
+        dropdown.setAdapter(adapter);
+        AlertDialog.Builder builder =new AlertDialog.Builder(this);
+        builder.setTitle("Change Password");
+        builder.setMessage("Enter new password");
+        input=new EditText(this);
+        TextView lbl=new TextView(this);
+        builder.setView(input);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                String txtNewPass=input.getText().toString();
+                Toast.makeText(getApplicationContext(),"Password Saved",Toast.LENGTH_SHORT).show();
+                sharedPreferences.edit().putString("Password",txtNewPass).apply();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Do Nothing
+            }
+        });
+        ad=builder.create();
+        btnChangePassword.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                ad.show();
+            }
+        });
+        btnShowDataLog.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent dataLogActivity=new Intent(getBaseContext(),DataLog.class);
+                startActivity(dataLogActivity);
             }
         });
 
@@ -359,7 +401,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        //super.onActivityResult(requestCode, resultCode, data);
+        super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == CaptureScreen.PERMISSION_CODE) {
             if(null != mCapture) {

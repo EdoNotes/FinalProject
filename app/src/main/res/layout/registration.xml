@@ -113,6 +113,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
+                    android:clickable="false"
                     android:text="Blood" />
 
                 <RadioButton
@@ -120,6 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10dp"
+                    android:clickable="false"
                     android:text="Shopping Ads" />
             </RadioGroup>
 

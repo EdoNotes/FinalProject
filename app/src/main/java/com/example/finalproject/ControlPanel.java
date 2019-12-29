@@ -22,7 +22,7 @@ public class ControlPanel extends AppCompatActivity
     Button btnShowDataLog;
     EditText input;
     AlertDialog ad;
-    String[] drop_items=new String[]{"Flowers","Pornography","Blood","Shopping Ads"};
+    String[] drop_items=new String[]{"Persons","Pornography","Blood","Shopping Ads"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +34,7 @@ public class ControlPanel extends AppCompatActivity
         dropdown.setAdapter(adapter);
         AlertDialog.Builder builder =new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
-        builder.setMessage("enter new password");
+        builder.setMessage("Enter new password");
         input=new EditText(this);
         TextView lbl=new TextView(this);
         builder.setView(input);
