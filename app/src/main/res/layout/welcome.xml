@@ -22,18 +22,18 @@
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
-        android:layout_height="122dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="32dp"
         android:text="we want to protect your child from any offensive content not depend\non any external connection"
-        android:textSize="20sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
-        android:layout_height="29dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="45dp"
         android:text="*registration required on first use"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -43,15 +43,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="120dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="30dp"
         android:background="#00FF12"
         android:text="Register"
         android:textColor="@android:color/white" />
 
     <ImageView
         android:id="@+id/imageView4"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/family_welcome" />
+        android:src="@drawable/family_welcome" />
 
 </LinearLayout>

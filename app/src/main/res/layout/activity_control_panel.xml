@@ -49,7 +49,7 @@
             android:layout_marginRight="20dp"
             android:layout_weight="0.5"
             android:background="#FF0025"
-            android:enabled="false"
+            android:enabled="true"
             android:text="Stop"
             android:textColor="#FFFFFF" />
 

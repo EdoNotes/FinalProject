@@ -48,7 +48,7 @@ public class BlurringService extends Service
     @Override
     public void onCreate()
     {
-        super.onCreate();
+        //super.onCreate();
         Log.d(TAG,"OnCreate()");
         handleStart();
     }

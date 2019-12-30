@@ -83,9 +83,12 @@ public class CaptureScreen {
 
     public void StopCaputre() {
 
-        mProjection.stop();
-        mImageReader.setOnImageAvailableListener(null , null);
+        if(null != mProjection)
+            mProjection.stop();
+        if(null != mImageReader)
+            mImageReader.setOnImageAvailableListener(null , null);
 
+        PermissionGranted = -1;
         mImageReader = null;
         mProjection = null;
         mainActiv = null;

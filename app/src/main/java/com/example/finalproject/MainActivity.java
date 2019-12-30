@@ -38,6 +38,8 @@ import static com.example.finalproject.Welcome.sharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
 
+    Button StartBtn;
+    Button StopBtn;
     Spinner dropdown;
     Button btnChangePassword;
     Button btnShowDataLog;
@@ -69,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int definedDensity = 420;
     public static final float definedThreshold = 0.5f;
 
-    private final Lock StartLock = new ReentrantLock(true);
+    //private final Lock StartLock = new ReentrantLock(true);
+    private static Semaphore StartLock = new Semaphore(1);
     private static Semaphore DrawThreadToUI = new Semaphore(0);
     private static Semaphore DrawUIToThread = new Semaphore(1);
 
@@ -89,8 +92,14 @@ public class MainActivity extends AppCompatActivity {
         if(!isLayoutOverlayPermissionGranted(MainActivity.this))
             grantLayoutOverlayPermission(MainActivity.this);
 
+        while(!isLayoutOverlayPermissionGranted(MainActivity.this)) {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {;}
+        }
+
         startService(intent);
-        bindService(intent,mConnection,BIND_AUTO_CREATE);
+        bindService(intent, mConnection, BIND_AUTO_CREATE);
 
         frameCounter = new IntObj();
         mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
@@ -102,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_control_panel);
         // Init gui
-        final Button StartBtn = (Button) findViewById(R.id.StartBtn);
-        final Button StopBtn = (Button) findViewById(R.id.StopBtn);
+        StartBtn = (Button) findViewById(R.id.StartBtn);
+        StopBtn = (Button) findViewById(R.id.StopBtn);
         //final ImageView imgTrump = (ImageView) findViewById(R.id.imageView2);
 
         StartBtn.setOnClickListener(new Button.OnClickListener() {
@@ -117,22 +126,23 @@ public class MainActivity extends AppCompatActivity {
 
                 if (mCapture == null) {
                     mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
-                    return;
                 }
+
+                mCapture.StartCaputre();
 
                 if(!isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     grantLayoutOverlayPermission(MainActivity.this);
-                }
-
-                if(mCapture.PermissionGranted != 1 || !isLayoutOverlayPermissionGranted(MainActivity.this)) {
-                    //Snackbar.make(v, "Permissions not granted", Snackbar.LENGTH_LONG)
-                    //       .setAction("Action", null).show();
                     Toast.makeText(getApplicationContext(), "Permissions not granted", Toast.LENGTH_LONG).show();
+                    mCapture.StopCaputre();
                     return;
                 }
 
-                mCapture.StartCaputre();
+                if(mCapture.PermissionGranted != 1) {
+                    Toast.makeText(getApplicationContext(), "Permissions not granted", Toast.LENGTH_LONG).show();
+                    mCapture.StopCaputre();
+                    return;
+                }
 
                 classifierObj = new FrameClassifier(MainActivity.this, definedRatio);
 
@@ -144,9 +154,11 @@ public class MainActivity extends AppCompatActivity {
                         Message completeMessage;
 
                         frameCounter.value = -1;
+                        /*try{
+                        StartLock.acquire();
+                        }catch (Exception e){}*/
 
                         while (null != mCapture) {
-                            StartLock.lock();
                             try {
                                 //if (startTimeMilli != -1)
                                 //    Log.i(TAG, "Cycle time:" + (System.currentTimeMillis() - startTimeMilli));
@@ -255,9 +267,9 @@ public class MainActivity extends AppCompatActivity {
 
                             } catch (Exception e) {
                                 Log.i(TAG, e.toString() + " " + e.getStackTrace());
+                            }finally {
+                                //StartLock.release();
                             }
-
-                            StartLock.unlock();
 
                             if (null != FrameBuffer || (null == FrameBuffer && frameCounter.value == -1)) {
                                 while ((System.currentTimeMillis() - startTimeMilli) < defineDelayMilli) {
@@ -270,6 +282,8 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
+                        //StartLock.release();
+
                     }
                 };
 
@@ -277,34 +291,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-
-        StopBtn.setOnClickListener(new Button.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                //Snackbar.make(v, "Capture screen stopped..", Snackbar.LENGTH_LONG)
-                //        .setAction("Action", null).show();
-                Toast.makeText(getApplicationContext(), "Capture screen stopped..", Toast.LENGTH_LONG).show();
-
-                if(mCapture != null) {
-                    CaptureScreen tempobj = mCapture;
-                    mCapture = null;
-
-                    StartLock.lock();
-                    try {
-                        tempobj.StopCaputre();
-                    } catch (Exception e) {
-                        // handle the exception
-                    } finally {
-                        StartLock.unlock();
-                    }
-                }
-
-            }
-        });
-
 
         dropdown=(Spinner) findViewById(R.id.spinner);
         btnChangePassword=(Button) findViewById(R.id.btnChangePassword);
@@ -345,6 +331,28 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent dataLogActivity=new Intent(getBaseContext(),DataLog.class);
                 startActivity(dataLogActivity);
+            }
+        });
+        StopBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Capture screen stopped..", Toast.LENGTH_LONG).show();
+
+                if(mCapture != null) {
+                    CaptureScreen tempobj = mCapture;
+                    mCapture = null;
+
+                    try {
+                        //StartLock.acquire();
+                        tempobj.StopCaputre();
+                        mServer.clean();
+
+                    } catch (Exception e) {
+                        // handle the exception
+                    } finally {
+                        //StartLock.release();
+                    }
+                }
             }
         });
 
