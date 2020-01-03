@@ -33,6 +33,17 @@
         android:background="#00FF12"
         android:text="Login"
         android:textColor="@android:color/white" />
+
+    <Button
+        android:id="@+id/btnLoginWithDifferentEmail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:background="#00FF12"
+        android:text="Login with different email"
+        android:textColor="@android:color/white" />
+
     <ImageView
         android:id="@+id/imageView4"
         android:layout_width="wrap_content"

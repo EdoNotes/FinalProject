@@ -24,7 +24,6 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import java.util.Random;
 
 import static com.example.finalproject.Welcome.editor;
-import static com.example.finalproject.Welcome.sharedPreferences;
 
 
 public class Registration extends AppCompatActivity
@@ -98,7 +97,7 @@ public class Registration extends AppCompatActivity
 
                                 if (radioGroup.getCheckedRadioButtonId()==-1)
                                 {
-                                    editor.putString("NetCon","Flowers");
+                                    editor.putString("NetCon","Persons");
                                 }
                                 else{
                                     int id=radioGroup.getCheckedRadioButtonId();
@@ -106,8 +105,8 @@ public class Registration extends AppCompatActivity
                                     editor.putString("NetCon",checked.getText().toString());
                                 }
 
-                                EmailVerification ev = new EmailVerification();
-                                sendSignInLink(/*"misha3792v@gmail.com"*/Email.getText().toString() , /*"123456"*/password.getText().toString());
+                                //EmailVerification ev = new EmailVerification();
+                                sendSignInLink(Email.getText().toString() , password.getText().toString());
 
                             }
                     }
@@ -128,10 +127,13 @@ public class Registration extends AppCompatActivity
                         if (task.isSuccessful()) {
 
                             randomString = generateVereficationCode();
+                            Log.d("sendSignInLink", " " + randomString);
 
                             UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder().setDisplayName(randomString).build();
-
                             auth.getCurrentUser().updateProfile(profileUpdates);
+
+                            auth.getCurrentUser().reload();
+
                             auth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {

@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                                     // GetFrame
                                     startTimeMilli = System.currentTimeMillis();
                                     FrameBuffer = mCapture.GetLatestFrame(frameCounter);
-                                    Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+                                    Log.i(TAG, "GetLatestFrame1 time:" + (System.currentTimeMillis() - startTimeMilli));
 
                                     // Restore
                                     startTimeMilli = System.currentTimeMillis();
@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                                     // GetFrame
                                     startTimeMilli = System.currentTimeMillis();
                                     FrameBuffer = mCapture.GetLatestFrame(frameCounter);
-                                    Log.i(TAG, "GetLatestFrame time:" + (System.currentTimeMillis() - startTimeMilli));
+                                    Log.i(TAG, "GetLatestFrame2 time:" + (System.currentTimeMillis() - startTimeMilli));
 
                                     //frameC = mCapture.GetFrameCounter();
                                 }
