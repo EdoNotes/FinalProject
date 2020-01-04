@@ -29,7 +29,6 @@ public class EmailVerification extends AppCompatActivity {
                    if(Registration.regAct.VerificationCodeIsValid(vereficationCodeText.getText().toString())) {
 
                        if(Registration.regAct.EmailIsVerified()) {
-
                            boolean saved = Registration.regAct.SaveVerificationData();
                            Intent LoginActivity = new Intent(getBaseContext(), Login.class);
                            startActivity(LoginActivity);
