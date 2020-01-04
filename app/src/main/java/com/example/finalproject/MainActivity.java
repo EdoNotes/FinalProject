@@ -232,14 +232,18 @@ public class MainActivity extends AppCompatActivity {
                                             }
                                         }
 
-                                        if (null == results) {
+                                        if (null == results || (results.size() == 0 && frameCounter.value < frameC+3)) {
                                             Log.i(TAG, "Results == null");
                                             dataVector = null;
+                                            frameCounter.value = -1;
                                         } /*else {
                                             if (results.size() == 0 && frameCounter.value > frameC)
                                                 dataVector = null;
                                             Log.i(TAG, "Results == " + results.size() + " FrameC == " + frameC);
                                         }*/
+
+                                        if(frameCounter.value != -1)
+                                            frameC = frameCounter.value;
 
                                         Log.i(TAG, "Build Vector from Results time:" + (System.currentTimeMillis() - startTimeMilli));
 
