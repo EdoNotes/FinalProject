@@ -65,7 +65,7 @@ public class Registration extends AppCompatActivity
                 {
                     //txtError.setText("Please fill all required fields");
                     //txtError.setTextColor(getColor(android.R.color.holo_red_dark));
-                    Toast.makeText(getApplicationContext(), "Please fill all required fields.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.FillAllRequiredFields, Toast.LENGTH_LONG).show();
                 }//empty field
                 else
                 {//all required fields ok
@@ -73,7 +73,7 @@ public class Registration extends AppCompatActivity
                     {
                         //txtError.setText("Password must be 6 digits");
                         //txtError.setTextColor(getColor(android.R.color.holo_red_dark));
-                        Toast.makeText(getApplicationContext(), "Password must be 6 digits.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), R.string.PasswordMust6Digits, Toast.LENGTH_LONG).show();
                     }
                     else
                     {
@@ -81,28 +81,28 @@ public class Registration extends AppCompatActivity
                         {
                             //txtError.setText("Passwords difference\ntry Again!");
                             //txtError.setTextColor(getColor(android.R.color.holo_red_dark));
-                            Toast.makeText(getApplicationContext(), "Passwords difference\ntry Again!", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), R.string.PasswordDifferenceAlert, Toast.LENGTH_LONG).show();
                         }
                         else if(Email.getText().toString().contains("@")== false||Email.getText().toString().contains(".")==false)
                         {
                             {
-                                Email.setError("Wrong Email Format");
+                                Email.setError(getString(R.string.WrongEmailFormat));
                             }
                         }
                         else
                             {//all ok
-                                editor.putString("Password",password.getText().toString());
-                                editor.putString("Email",Email.getText().toString());
+                                editor.putString(getString(R.string.PasswordKey),password.getText().toString());
+                                editor.putString(getString(R.string.EmailKey),Email.getText().toString());
                                 //net configuration check
 
                                 if (radioGroup.getCheckedRadioButtonId()==-1)
                                 {
-                                    editor.putString("NetCon","Persons");
+                                    editor.putString(getString(R.string.NetConKey),getString(R.string.NetConPerson));
                                 }
                                 else{
                                     int id=radioGroup.getCheckedRadioButtonId();
                                     RadioButton checked=findViewById(id);
-                                    editor.putString("NetCon",checked.getText().toString());
+                                    editor.putString(getString(R.string.NetConKey),checked.getText().toString());
                                 }
 
                                 //EmailVerification ev = new EmailVerification();
@@ -155,10 +155,10 @@ public class Registration extends AppCompatActivity
                             if(task.getException() instanceof FirebaseAuthUserCollisionException) {
                                 //txtError.setText("The email is already registered");
                                 //txtError.setTextColor(getColor(android.R.color.holo_red_dark));
-                                Toast.makeText(getApplicationContext(), "The email is already registered", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), R.string.EmailAlreadyRegistered, Toast.LENGTH_LONG).show();
                             }
                             else
-                                Toast.makeText(getApplicationContext(), "Unknown error.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), R.string.UnknownErrorMessage, Toast.LENGTH_LONG).show();
                         }
 
                     }

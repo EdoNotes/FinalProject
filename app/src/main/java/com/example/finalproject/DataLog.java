@@ -19,7 +19,8 @@ public class DataLog extends AppCompatActivity {
         setContentView(R.layout.activity_data_log);
         dataLog=(ListView)findViewById(R.id.listdataLog);
         dataLogItems=new ArrayList<String>();
-        dataLogItems.add("Item test");
+        //Todo Add items to data log
+        //dataLogItems.add("Item test");
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,

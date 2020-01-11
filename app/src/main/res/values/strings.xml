@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">FinalProject</string>
+    <string name="MySharedRefrences">MyPref</string>
+    <string name="FillAllRequiredFields">Please fill all required fields.</string>
+    <string name="PasswordMust6Digits">Password must be 6 digits.</string>
+    <string name="PasswordDifferenceAlert">Passwords difference try Again!</string>
+    <string name="WrongEmailFormat">Wrong Email Format</string>
+    <string name="EmailKey">Email</string>
+    <string name="NetConKey">NetCon</string>
+    <string name="NetConPerson">Persons</string>
+    <string name="EmailAlreadyRegistered">The email is already registered</string>
+    <string name="UnknownErrorMessage">Unknown error.</string>
+    <string name="NetConPorn">Pornography</string>
+    <string name="NetConBlood">Blood</string>
+    <string name="NetConShoppingAds">Shopping Ads</string>
+    <string name="CaptureScreenStarted">Capture screen started..</string>
+    <string name="PermissionNotGranted">Permissions not granted</string>
+    <string name="TitleChangePassword">Change Password</string>
+    <string name="MessageEnterNewPassword">Enter new password</string>
+    <string name="PositiveButtonOk">Ok</string>
+    <string name="PasswordSavedMessage">Password Saved</string>
+    <string name="PasswordKey">Password</string>
+    <string name="NegativeButtonCancel">Cancel</string>
+    <string name="CaptureScreenStopped">Capture screen stopped..</string>
+    <string name="TitleLogin">Login</string>
+    <string name="EnterValidEmailAndPassword">Enter valid email and password:</string>
+    <string name="PositiveButtonLogin">Login</string>
+    <string name="InvalidEmailPassword">Invalid Email/Password</string>
+    <string name="LoginSuccessful">Login successful!</string>
+    <string name="LoginFailed">Login failed!</string>
+    <string name="EmailNotVerified">Email not verified.  Click on the link inside the mail.</string>
+    <string name="VerificationCodeWrong">Verification code is wrong. try again.</string>
+    <string name="GeneralError">General error occurred, go back and try again</string>
+    <string name="TitleSignIn">Sign in</string>
+    <string name="WrongPassword">Wrong Password</string>
 </resources>

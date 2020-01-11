@@ -47,27 +47,27 @@ public class EmailLogin extends AppCompatActivity {
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Login");
-        builder.setMessage("Enter valid email and password:");
+        builder.setTitle(getString(R.string.TitleLogin));
+        builder.setMessage(getString(R.string.EnterValidEmailAndPassword));
 
         input1 = new EditText(context);
         input2 = new EditText(context);
-        input1.setHint("Email");
-        input2.setHint("Password");
+        input1.setHint(getString(R.string.EmailKey));
+        input2.setHint(getString(R.string.PasswordKey));
         LinearLayout ll = new LinearLayout(context);
         ll.setOrientation(LinearLayout.VERTICAL);
         ll.addView(input1);
         ll.addView(input2);
         builder.setView(ll);
 
-        builder.setPositiveButton("Login", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.PositiveButtonLogin), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 final String txtEmail = input1.getText().toString();
                 final String txtPassword = input2.getText().toString();
 
                 if(txtEmail.isEmpty() || txtPassword.isEmpty()) {
-                    Toast.makeText(context, "Invalid Email/Password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, R.string.InvalidEmailPassword, Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -83,22 +83,22 @@ public class EmailLogin extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
                                     Message completeMessage;
-                                    sharedPreferences.edit().putString("Password",txtPassword).apply();
-                                    sharedPreferences.edit().putString("Email",txtEmail).apply();
+                                    sharedPreferences.edit().putString(getString(R.string.PasswordKey),txtPassword).apply();
+                                    sharedPreferences.edit().putString(getString(R.string.EmailKey),txtEmail).apply();
 
-                                    Toast.makeText(context, "Login successful!", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(context, R.string.LoginSuccessful, Toast.LENGTH_LONG).show();
 
                                     completeMessage = handler.obtainMessage(1, 0);
                                     completeMessage.sendToTarget();
                                 }
                                 else {
-                                    Toast.makeText(context, "Login failed! " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(context, getString(R.string.LoginFailed) + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.NegativeButtonCancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 input1.setText("");
