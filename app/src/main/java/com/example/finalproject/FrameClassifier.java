@@ -18,6 +18,8 @@ import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -176,10 +178,13 @@ public class FrameClassifier {
                     // SSD Mobilenet V1 Model assumes class 0 is background class
                     // in label file and class labels start from 1 to number_of_classes+1,
                     // while outputClasses correspond to class index from 0 to number_of_classes
+                    Date currentTime = Calendar.getInstance().getTime();
                     recognitions.add(
                             new Recognition(
                                     outputScores[0][i],
                                     detection));
+                    DataLog.arrayAdapter.add("Gotcha,item has been capture on"+ currentTime);
+
                 }
             }
 

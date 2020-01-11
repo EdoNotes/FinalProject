@@ -7,11 +7,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class DataLog extends AppCompatActivity {
+
  ListView dataLog;
- List<String> dataLogItems;
+ public static ArrayAdapter<String> arrayAdapter;
+ public static List<String> dataLogItems;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,12 +25,35 @@ public class DataLog extends AppCompatActivity {
         dataLog=(ListView)findViewById(R.id.listdataLog);
         dataLogItems=new ArrayList<String>();
         //Todo to add here Items
-        //dataLogItems.add("Item test");
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+        Date currentTime = Calendar.getInstance().getTime();
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+        arrayAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
                 dataLogItems );
 
         dataLog.setAdapter(arrayAdapter);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setContentView(R.layout.activity_data_log);
+        dataLog=(ListView)findViewById(R.id.listdataLog);
+        dataLogItems=new ArrayList<String>();
+        Date currentTime = Calendar.getInstance().getTime();
+        arrayAdapter = new ArrayAdapter<String>(
+                this,
+                android.R.layout.simple_list_item_1,
+                dataLogItems );
+
+        dataLog.setAdapter(arrayAdapter);
+    }
+
 }
