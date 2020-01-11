@@ -23,7 +23,7 @@ public class Login extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(null);
         setContentView(R.layout.activity_login);
-        setTitle(R.string.TitleSignIn);
+        setTitle("Sign in");
         loginbtn=(Button)findViewById(R.id.btnLogin);
         txtloginPass=(EditText)findViewById(R.id.txtsignpass);
 
@@ -37,7 +37,7 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                String SavedPass=sharedPreferences.getString(getString(R.string.PasswordKey),"");
+                String SavedPass=sharedPreferences.getString("Password","");
                 if(SavedPass.equals(txtloginPass.getText().toString()))
                 {
                     Intent MainActivity=new Intent(getBaseContext(), MainActivity.class);
@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
                 }
                 else
                 {
-                    txtloginPass.setError(getString(R.string.WrongPassword));
+                    txtloginPass.setError("Wrong Password");
                 }
             }
         });

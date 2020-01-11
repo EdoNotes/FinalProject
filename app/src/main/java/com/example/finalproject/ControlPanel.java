@@ -22,7 +22,7 @@ public class ControlPanel extends AppCompatActivity
     Button btnShowDataLog;
     EditText input;
     AlertDialog ad;
-    String[] drop_items=new String[]{getString(R.string.NetConPerson),getString(R.string.NetConPorn),getString(R.string.NetConBlood),getString(R.string.NetConShoppingAds)};
+    String[] drop_items=new String[]{"Persons","Pornography","Blood","Shopping Ads"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,18 +33,18 @@ public class ControlPanel extends AppCompatActivity
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, drop_items);
         dropdown.setAdapter(adapter);
         AlertDialog.Builder builder =new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.TitleChangePassword));
-        builder.setMessage(getString(R.string.MessageEnterNewPassword));
+        builder.setTitle("Change Password");
+        builder.setMessage("Enter new password");
         input=new EditText(this);
         TextView lbl=new TextView(this);
         builder.setView(input);
-        builder.setPositiveButton(getString(R.string.PositiveButtonOk), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
                 String txtNewPass=input.getText().toString();
-                Toast.makeText(getApplicationContext(),getString(R.string.PasswordSavedMessage),Toast.LENGTH_SHORT).show();
-                sharedPreferences.edit().putString(getString(R.string.PasswordKey),txtNewPass).apply();
+                Toast.makeText(getApplicationContext(),"Password Saved",Toast.LENGTH_SHORT).show();
+                sharedPreferences.edit().putString("Password",txtNewPass).apply();
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

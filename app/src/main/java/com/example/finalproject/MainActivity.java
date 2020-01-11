@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnShowDataLog;
     EditText input;
     AlertDialog ad;
-    String[] drop_items=new String[]{getString(R.string.NetConPerson),getString(R.string.NetConPorn),getString(R.string.NetConBlood),getString(R.string.NetConShoppingAds)};
+    String[] drop_items=new String[]{"Persons","Pornography","Blood","Shopping Ads"};
 
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Snackbar.make(v, "Capture screen started..", Snackbar.LENGTH_LONG)
                 //        .setAction("Action", null).show();
-                Toast.makeText(getApplicationContext(), R.string.CaptureScreenStarted, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Capture screen started..", Toast.LENGTH_LONG).show();
 
                 if (mCapture == null) {
                     mCapture = new CaptureScreen(MainActivity.this, defineDelayMilli, definedRatio, definedDensity);
@@ -133,13 +133,13 @@ public class MainActivity extends AppCompatActivity {
                 if(!isLayoutOverlayPermissionGranted(MainActivity.this))
                 {
                     grantLayoutOverlayPermission(MainActivity.this);
-                    Toast.makeText(getApplicationContext(), R.string.PermissionNotGranted, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Permissions not granted", Toast.LENGTH_LONG).show();
                     mCapture.StopCaputre();
                     return;
                 }
 
                 if(mCapture.PermissionGranted != 1) {
-                    Toast.makeText(getApplicationContext(), R.string.PermissionNotGranted, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Permissions not granted", Toast.LENGTH_LONG).show();
                     mCapture.StopCaputre();
                     return;
                 }
@@ -302,21 +302,21 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, drop_items);
         dropdown.setAdapter(adapter);
         AlertDialog.Builder builder =new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.TitleChangePassword));
-        builder.setMessage(getString(R.string.MessageEnterNewPassword));
+        builder.setTitle("Change Password");
+        builder.setMessage("Enter new password");
         input=new EditText(this);
         TextView lbl=new TextView(this);
         builder.setView(input);
-        builder.setPositiveButton(getString(R.string.PositiveButtonOk), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
                 String txtNewPass=input.getText().toString();
-                Toast.makeText(getApplicationContext(), R.string.PasswordSavedMessage,Toast.LENGTH_SHORT).show();
-                sharedPreferences.edit().putString(getString(R.string.PasswordKey),txtNewPass).apply();
+                Toast.makeText(getApplicationContext(),"Password Saved",Toast.LENGTH_SHORT).show();
+                sharedPreferences.edit().putString("Password",txtNewPass).apply();
             }
         });
-        builder.setNegativeButton(getString(R.string.NegativeButtonCancel), new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Do Nothing
@@ -340,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
         StopBtn.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), R.string.CaptureScreenStopped, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "Capture screen stopped..", Toast.LENGTH_LONG).show();
 
                 if(mCapture != null) {
                     CaptureScreen tempobj = mCapture;

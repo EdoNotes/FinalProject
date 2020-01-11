@@ -24,7 +24,7 @@ public class Welcome extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
 
-        sharedPreferences=getApplication().getSharedPreferences(getString(R.string.MySharedRefrences),0);
+        sharedPreferences=getApplication().getSharedPreferences("MyPref",0);
         editor= sharedPreferences.edit();
         if(sharedPreferences.getAll().size()==0)
         {

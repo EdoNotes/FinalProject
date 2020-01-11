@@ -35,14 +35,14 @@ public class EmailVerification extends AppCompatActivity {
                            startActivity(LoginActivity);
                        }
                        else
-                           Toast.makeText(getApplicationContext(), R.string.EmailNotVerified, Toast.LENGTH_LONG).show();
+                           Toast.makeText(getApplicationContext(), "Email not verified. \nClick on the link inside the mail.", Toast.LENGTH_LONG).show();
                    }
                    else {
-                       Toast.makeText(getApplicationContext(), R.string.VerificationCodeWrong, Toast.LENGTH_LONG).show();
+                       Toast.makeText(getApplicationContext(), "Verification code is wrong. try again.", Toast.LENGTH_LONG).show();
                    }
                }
                else {
-                   Toast.makeText(getApplicationContext(), R.string.GeneralError, Toast.LENGTH_LONG).show();
+                   Toast.makeText(getApplicationContext(), "General error occurred, go back and try again", Toast.LENGTH_LONG).show();
                }
 
             }
