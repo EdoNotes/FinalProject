@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">FinalProject</string>
+    <string name="NetConPerson">Persons</string>
+    <string name="NetConPorn">Pornography</string>
+    <string name="NetConBlood">Blood</string>
+    <string name="NetConShoppingAds">Shopping Ads</string>
+    <string name="TitleChangePassword">Change Password</string>
+    <string name="MessageEnterNewPassword">Enter new password</string>
+    <string name="PositiveButtonOK">Ok</string>
+    <string name="MessagePasswordChanged">Password Saved</string>
+    <string name="Password">Password</string>
+    <string name="Cancel">Cancel</string>
+    <string name="Login">Login</string>
+    <string name="EnterEmailAndPassword">Enter valid email and password:</string>
+    <string name="Email">Email</string>
+    <string name="InvalidStringOrPassword">Invalid Email/Password</string>
+    <string name="LoginSuccess">Login successful!</string>
+    <string name="LoginFailed">Login failed!</string>
+    <string name="MessageEmailNotVerified">Email not verified. \\nClick on the link inside the mail.</string>
+    <string name="WrongVerificationCode">Verification code is wrong. try again.</string>
+    <string name="GeneralError">General error occurred, go back and try again</string>
+    <string name="SignIn">Sign in</string>
+    <string name="WrongPassword">Wrong Password</string>
+    <string name="CaptureStarted">Capture screen started..</string>
+    <string name="PermissionNotGranted">Permissions not granted</string>
+    <string name="ChangePassword">Change Password</string>
+    <string name="EnterNewPassword">Enter New Password</string>
 </resources>
