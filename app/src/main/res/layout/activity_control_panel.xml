@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="50dp"
         android:gravity="center"
         android:text="Control Panel"
         android:textColor="#F8090404"
@@ -64,7 +64,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginRight="20dp"
         android:layout_weight="0"
-        android:text="by pressing start,the censoring process will be activated"
+        android:text="By pressing start,the censoring process will be activated."
         android:textColor="#0C0101"
         android:textSize="20sp" />
 

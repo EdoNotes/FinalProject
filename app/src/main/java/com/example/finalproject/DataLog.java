@@ -13,9 +13,9 @@ import java.util.List;
 
 public class DataLog extends AppCompatActivity {
 
- ListView dataLog;
+ private static ListView dataLog;
  public static ArrayAdapter<String> arrayAdapter;
- public static List<String> dataLogItems;
+ public static List<String> dataLogItems =new ArrayList<String>();
 
 
     @Override
@@ -23,16 +23,9 @@ public class DataLog extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_data_log);
         dataLog=(ListView)findViewById(R.id.listdataLog);
-        dataLogItems=new ArrayList<String>();
-        //Todo to add here Items
-        Date currentTime = Calendar.getInstance().getTime();
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
-        dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+
+        //dataLogItems.add("Gotcha,item has been capture on"+ currentTime);
+
         arrayAdapter = new ArrayAdapter<String>(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -41,7 +34,7 @@ public class DataLog extends AppCompatActivity {
         dataLog.setAdapter(arrayAdapter);
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
         setContentView(R.layout.activity_data_log);
@@ -54,6 +47,6 @@ public class DataLog extends AppCompatActivity {
                 dataLogItems );
 
         dataLog.setAdapter(arrayAdapter);
-    }
+    }*/
 
 }

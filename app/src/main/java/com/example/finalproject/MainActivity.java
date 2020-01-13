@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnShowDataLog;
     EditText input;
     AlertDialog ad;
-    String[] drop_items=new String[]{"Persons","Pornography","Blood","Shopping Ads"};
+    String[] drop_items;
 
     public static final int CODE_DRAW_OVER_OTHER_APP_PERMISSION = 2084;
 
@@ -299,24 +299,25 @@ public class MainActivity extends AppCompatActivity {
         dropdown=(Spinner) findViewById(R.id.spinner);
         btnChangePassword=(Button) findViewById(R.id.btnChangePassword);
         btnShowDataLog=(Button) findViewById(R.id.BtnShowDataLog);
+        drop_items=new String[]{getString(R.string.NetConPerson),getString(R.string.NetConPorn),getString(R.string.NetConBlood),getString(R.string.NetConShoppingAds)};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, drop_items);
         dropdown.setAdapter(adapter);
         AlertDialog.Builder builder =new AlertDialog.Builder(this);
-        builder.setTitle("Change Password");
-        builder.setMessage("Enter new password");
+        builder.setTitle(getString(R.string.TitleChangePassword));
+        builder.setMessage(getString(R.string.MessageEnterNewPassword));
         input=new EditText(this);
         TextView lbl=new TextView(this);
         builder.setView(input);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getString(R.string.PositiveButtonOK), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which)
             {
                 String txtNewPass=input.getText().toString();
-                Toast.makeText(getApplicationContext(),"Password Saved",Toast.LENGTH_SHORT).show();
-                sharedPreferences.edit().putString("Password",txtNewPass).apply();
+                Toast.makeText(getApplicationContext(), R.string.MessagePasswordChanged,Toast.LENGTH_SHORT).show();
+                sharedPreferences.edit().putString(getString(R.string.Password),txtNewPass).apply();
             }
         });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(getString(R.string.Cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 //Do Nothing

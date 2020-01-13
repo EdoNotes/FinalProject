@@ -59,6 +59,8 @@ public class FrameClassifier {
 
     private DisplayMetrics g_metrics;
 
+    private DataLog datalogclass; //= new DataLog();
+
     private float scaleX = 0 , scaleY = 0 , offsetX = 0 , offsetY = 0;
 
 
@@ -178,12 +180,12 @@ public class FrameClassifier {
                     // SSD Mobilenet V1 Model assumes class 0 is background class
                     // in label file and class labels start from 1 to number_of_classes+1,
                     // while outputClasses correspond to class index from 0 to number_of_classes
-                    Date currentTime = Calendar.getInstance().getTime();
                     recognitions.add(
                             new Recognition(
                                     outputScores[0][i],
                                     detection));
-                    DataLog.arrayAdapter.add("Gotcha,item has been capture on"+ currentTime);
+                    if(null != datalogclass.dataLogItems)
+                        datalogclass.dataLogItems.add("'Person' detected on "+ Calendar.getInstance().getTime());
 
                 }
             }
